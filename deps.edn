@@ -1,0 +1,12 @@
+{:paths ["src" "resources"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.4"}
+        cljfx/cljfx {:mvn/version "1.10.6"}
+        org.clojure/core.cache {:mvn/version "1.1.234"}
+        org.fxmisc.richtext/richtextfx {:mvn/version "0.11.7"}}
+ :aliases
+ {:dev {:extra-deps {dev.weavejester/cljfmt {:mvn/version "0.15.6"}
+                     clj-kondo/clj-kondo {:mvn/version "2025.12.23"}
+                     io.github.cljfx/dev {:mvn/version "1.10.6.42"}}}
+  :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}
+                      lambdaisland/kaocha-cloverage {:mvn/version "1.1.89"}}
+         :main-opts ["-m" "kaocha.runner"]}}}
