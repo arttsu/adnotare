@@ -6,7 +6,11 @@
 
 (def *state
   (atom (fx/create-context {:text "Hello, World! This is a test of Adnotare."
-                            :annotations [{:start 7 :end 12} {:start 32 :end 40}]}
+                            :annotation-kinds {"AAA" {:color "01"}
+                                               "BBB" {:color "09"}}
+                            :annotations [{:id "abc" :start 7 :end 12 :kind "AAA"}
+                                          {:id "xyz" :start 32 :end 40 :kind "BBB"}]
+                            :selected-annotation "abc"}
                            cache/lru-cache-factory)))
 
 (def event-handler

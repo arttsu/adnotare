@@ -1,1 +1,12 @@
-.ann-yellow { -rtfx-background-color: rgba(255, 255, 0, 1); }
+.ann-01 { -rtfx-background-color: #FFFF77; -fx-fill: black; }
+.ann-02 { -rtfx-background-color: #AEFF77; -fx-fill: black; }
+.ann-03 { -rtfx-background-color: #77FF92; -fx-fill: black; }
+.ann-04 { -rtfx-background-color: #77FFE4; -fx-fill: black; }
+.ann-05 { -rtfx-background-color: #77C9FF; -fx-fill: black; }
+.ann-06 { -rtfx-background-color: #7777FF; -fx-fill: black; }
+.ann-07 { -rtfx-background-color: #C977FF; -fx-fill: black; }
+.ann-08 { -rtfx-background-color: #FF77E4; -fx-fill: black; }
+.ann-09 { -rtfx-background-color: #FF7792; -fx-fill: black; }
+.ann-10 { -rtfx-background-color: #FFAE77; -fx-fill: black; }
+
+.ann-selected { -rtfx-background-color: #000000; -fx-fill: white; }

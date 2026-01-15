@@ -1,22 +1,14 @@
 (ns adnotare.views
-  (:require [cljfx.api :as fx]
-            [adnotare.events :as events]
-            [adnotare.subs :as subs]
-            [adnotare.rich :refer [code-area]])
-  (:import (org.fxmisc.richtext CodeArea)
-           (java.net URL)))
+  (:require [adnotare.subs :as subs]
+            [adnotare.rich :refer [annotated-area]]
+            [clojure.java.io :as io]))
 
 (defn resource-url ^String [path]
-  (some-> (clojure.java.io/resource path) str))
+  (some-> (io/resource path) str))
 
 (defn text [{:keys [fx/context]}]
-  {:fx/type code-area
-   :desc {:fx/type fx/ext-instance-factory
-          :create #(doto (CodeArea.)
-                     (.setWrapText true))}
-   :props {:adnotare/text (subs/text context)
-           :adnotare/style-spans (subs/style-spans context)
-           :adnotare/read-only? true}})
+  {:fx/type annotated-area
+   :adnotare/model (subs/annotated-area-model context)})
 
 (defn root [_]
   {:fx/type :stage
