@@ -85,7 +85,7 @@
                              :adnotare/id id}}]}))
 
 (defn annotation-list [{:keys [fx/context]}]
-  (let [annotations (subs/annotations context)
+  (let [annotations (subs/sorted-annotations context)
         kinds (subs/annotation-kinds context)
         selected-id (subs/selected-annotation-id context)]
     {:fx/type :scroll-pane

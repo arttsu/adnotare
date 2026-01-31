@@ -10,6 +10,9 @@
 (defn annotations [context]
   (fx/sub-val context :annotations))
 
+(defn sorted-annotations [context]
+  (sort-by (comp :start val) (annotations context)))
+
 (defn selected-annotation-id [context]
   (fx/sub-val context :selected-annotation-id))
 
