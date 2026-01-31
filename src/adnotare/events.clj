@@ -3,6 +3,17 @@
             [adnotare.subs :as subs])
   (:import [java.util UUID]))
 
+(defn- add-annotation [context kind start end text]
+  (let [id (UUID/randomUUID)
+        annotation {:start start
+                    :end end
+                    :kind kind
+                    :text text
+                    :note ""}]
+    (-> context
+        (update-in [:annotations] assoc id annotation)
+        (assoc :selected-annotation-id id))))
+
 (defn- delete-annotation [context id]
   (-> context
       (update-in [:annotations] dissoc id)
@@ -28,11 +39,12 @@
                    (map (fn [[id a]] (assoc a :id id)))
                    (sort-by :start))]
     (apply str
-           (for [{:keys [text kind]} items
+           (for [{:keys [text kind note]} items
                  :let [kind-text (get-in kinds [kind :text] "")]]
              (str "<annotation>\n"
                   "  <quote>\n" (xml-escape text) "\n  </quote>\n"
                   "  <type>" (xml-escape kind-text) "</type>\n"
+                  "  <note>\n" (xml-escape note) "\n  </note>\n"
                   "</annotation>\n\n")))))
 
 (defmulti event-handler :event/type)
@@ -46,8 +58,7 @@
   (let [{:keys [start end selected-text]} (subs/rich-area-selection context)]
     (if (.isEmpty selected-text)
       {}
-      (let [id (UUID/randomUUID)]
-        {:context (fx/swap-context context update-in [:annotations] assoc id {:start start :end end :kind kind :text selected-text})}))))
+      {:context (fx/swap-context context add-annotation kind start end selected-text)})))
 
 (defmethod event-handler :adnotare/select-annotation [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context assoc :selected-annotation-id id)})
@@ -55,6 +66,11 @@
 (defmethod event-handler :adnotare/consume-mouse-event [{:keys [fx/event]}]
   (.consume event)
   {})
+
+(defmethod event-handler :adnotare/update-annotation-note [{:keys [fx/context adnotare/id fx/event]}]
+  (let [src (.getSource event)
+        note (.getText src)]
+    {:context (fx/swap-context context assoc-in [:annotations id :note] note)}))
 
 (defmethod event-handler :adnotare/delete-annotation [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context delete-annotation id)})

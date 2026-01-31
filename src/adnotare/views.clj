@@ -92,11 +92,28 @@
      :fit-to-width true
      :hbar-policy :never
      :vbar-policy :as-needed
-     :max-height 220
+     :max-height 600
      :content {:fx/type :v-box
                :spacing 8
                :padding 8
                :children (map (fn [a] (annotation-list-item a kinds selected-id)) annotations)}}))
+
+(defn annotation-note-editor [{:keys [fx/context]}]
+  (let [selected-id (subs/selected-annotation-id context)
+        selected (subs/selected-annotation context)
+        note (or (some-> selected :note) "")
+        disabled? (nil? selected-id)]
+    {:fx/type :v-box
+     :spacing 6
+     :children [{:fx/type :label
+                 :text "Additional note"}
+                {:fx/type :text-area
+                 :text note
+                 :disable disabled?
+                 :wrap-text true
+                 :pref-row-count 6
+                 :on-key-released {:event/type :adnotare/update-annotation-note
+                                   :adnotare/id selected-id}}]}))
 
 (defn root [_]
   {:fx/type :stage
@@ -136,4 +153,6 @@
                                                   {:fx/type :separator}
                                                   {:fx/type :label
                                                    :text "Annotations"}
-                                                  {:fx/type annotation-list}]}]}]}}})
+                                                  {:fx/type annotation-list}
+                                                  {:fx/type :separator}
+                                                  {:fx/type annotation-note-editor}]}]}]}}})
