@@ -68,9 +68,11 @@
    {:adnotare/model (prop/make (mutator/setter
                                 (fn [^VirtualizedScrollPane pane model]
                                   (when-let [^CodeArea area (pane->area pane)]
-                                    (.replaceText area (:text model))
-                                    (.setStyleSpans area 0 (->style-spans model))
-                                    (.moveTo area (min 100 (count (:text model)))))))
+                                    (let [new-text (:text model)
+                                          old-text (.getText area)]
+                                      (when-not (= new-text old-text)
+                                        (.replaceText area (:text model))))
+                                    (.setStyleSpans area 0 (->style-spans model)))))
                                lifecycle/scalar)
     :adnotare/read-only? (prop/make (mutator/setter
                                      (fn [^VirtualizedScrollPane pane ro?]
