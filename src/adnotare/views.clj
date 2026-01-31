@@ -20,10 +20,9 @@
      :children [{:fx/type :label
                  :text text}]}))
 
-(defn text [{:keys [fx/context adnotare/dispatch!]}]
+(defn text [{:keys [fx/context]}]
   {:fx/type annotated-area
-   :adnotare/model (subs/annotated-area-model context)
-   :adnotare/dispatch! dispatch!})
+   :adnotare/model (subs/annotated-area-model context)})
 
 (defn annotation-kind-button [id {:keys [color text]}]
   {:fx/type :button
@@ -99,7 +98,7 @@
                :padding 8
                :children (map (fn [a] (annotation-list-item a kinds selected-id)) annotations)}}))
 
-(defn root [{:keys [:adnotare/dispatch!]}]
+(defn root [_]
   {:fx/type :stage
    :showing true
    :title "Adnotare"
@@ -114,8 +113,7 @@
                               :items [{:fx/type :v-box
                                        :padding 10
                                        :spacing 10
-                                       :children [{:fx/type text
-                                                   :adnotare/dispatch! dispatch!}
+                                       :children [{:fx/type text}
                                                   {:fx/type :h-box
                                                    :spacing 10
                                                    :padding 10
