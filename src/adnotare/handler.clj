@@ -13,7 +13,8 @@
   (atom (fx/create-context {:text "Hello, World! This is a test of Adnotare."
                             :annotation-kinds {"000" {:color "00" :text "Generic"}
                                                "AAA" {:color "01" :text "Please explain this part"}
-                                               "BBB" {:color "09" :text "Are you sure about this?"}}
+                                               "BBB" {:color "09" :text "Are you sure about this?"}
+                                               "CCC" {:color "05" :text "Give me more details"}}
                             :annotations {}
                             :selected-annotation-id nil
                             :rich-area-selection {:start 0

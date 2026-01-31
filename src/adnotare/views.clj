@@ -102,18 +102,22 @@
   {:fx/type :stage
    :showing true
    :title "Adnotare"
-   :width 800
-   :height 600
+   :width 1600
+   :height 1200
    :scene {:fx/type :scene
            :stylesheets [(resource-url "app.css")]
            :root {:fx/type :v-box
                   :children [{:fx/type toast-banner}
                              {:fx/type :split-pane
-                              :divider-positions [0.70]
+                              :v-box/vgrow :always
+                              :max-height Double/MAX_VALUE
+                              :divider-positions [0.6]
                               :items [{:fx/type :v-box
                                        :padding 10
                                        :spacing 10
-                                       :children [{:fx/type text}
+                                       :children [{:fx/type text
+                                                   :v-box/vgrow :always
+                                                   :max-height Double/MAX_VALUE}
                                                   {:fx/type :h-box
                                                    :spacing 10
                                                    :padding 10
