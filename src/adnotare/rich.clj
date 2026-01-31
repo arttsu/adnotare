@@ -2,9 +2,12 @@
   (:require [cljfx.api :as fx]
             [cljfx.lifecycle :as lifecycle]
             [cljfx.mutator :as mutator]
-            [cljfx.prop :as prop])
+            [cljfx.prop :as prop]
+            [adnotare.runtime :as rt])
   (:import (org.fxmisc.richtext CodeArea)
            (org.fxmisc.richtext.model StyleSpansBuilder)
+           (javafx.beans.value ChangeListener)
+           (javafx.scene.control IndexRange)
            (java.util ArrayList Collection Collections)))
 
 (defn- ->style-collection ^Collection [active-classes]
@@ -40,6 +43,19 @@
             (.add builder (->style-collection active') span-len))
           (recur i active' (rest more)))))))
 
+(defn- install-selection-listener! [^CodeArea area dispatch!]
+  (.addListener (.selectionProperty area)
+                (reify ChangeListener
+                  (changed [_ _ _ _]
+                    (let [^IndexRange r (.getSelection area)
+                          start (.getStart r)
+                          end (.getEnd r)
+                          selected-text (.getSelectedText area)]
+                      (dispatch! {:event/type :adnotare/rich-area-selection-changed
+                                  :start start
+                                  :end end
+                                  :selected-text selected-text}))))))
+
 (def ^:private code-area
   (fx/make-ext-with-props
    {:adnotare/model (prop/make (mutator/setter
@@ -52,10 +68,13 @@
                                        (.setEditable area (not (true? ro?)))))
                                     lifecycle/scalar)}))
 
-(defn annotated-area [{:keys [adnotare/model]}]
+(defn annotated-area [{:keys [adnotare/model adnotare/dispatch!]}]
   {:fx/type code-area
    :desc {:fx/type fx/ext-instance-factory
-          :create #(doto (CodeArea.)
-                     (.setWrapText true))}
+          :create #(let [area (doto (CodeArea.)
+                                (.setWrapText true))]
+                     (rt/set-rich-area! area)
+                     (install-selection-listener! area dispatch!)
+                     area)}
    :props {:adnotare/model model
            :adnotare/read-only? true}})

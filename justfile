@@ -16,3 +16,8 @@ fmt:
 # Lint via clj-kondo
 lint:
     clj -M:dev -m clj-kondo.main --lint src
+
+# Lint and format
+pre-pr:
+    @just lint
+    @just fmt

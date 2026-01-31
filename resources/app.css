@@ -1,12 +1,62 @@
-.ann-01 { -rtfx-background-color: #FFFF77; -fx-fill: black; }
-.ann-02 { -rtfx-background-color: #AEFF77; -fx-fill: black; }
-.ann-03 { -rtfx-background-color: #77FF92; -fx-fill: black; }
-.ann-04 { -rtfx-background-color: #77FFE4; -fx-fill: black; }
-.ann-05 { -rtfx-background-color: #77C9FF; -fx-fill: black; }
-.ann-06 { -rtfx-background-color: #7777FF; -fx-fill: black; }
-.ann-07 { -rtfx-background-color: #C977FF; -fx-fill: black; }
-.ann-08 { -rtfx-background-color: #FF77E4; -fx-fill: black; }
-.ann-09 { -rtfx-background-color: #FF7792; -fx-fill: black; }
-.ann-10 { -rtfx-background-color: #FFAE77; -fx-fill: black; }
+.ann-00 { -rtfx-background-color: #DDDDDD; -fx-background-color: #DDDDDD; -fx-fill: black; }
+.ann-01 { -rtfx-background-color: #FFFF77; -fx-background-color: #FFFF77; -fx-fill: black; }
+.ann-02 { -rtfx-background-color: #AEFF77; -fx-background-color: #AEFF77; -fx-fill: black; }
+.ann-03 { -rtfx-background-color: #77FF92; -fx-background-color: #77FF92; -fx-fill: black; }
+.ann-04 { -rtfx-background-color: #77FFE4; -fx-background-color: #77FFE4; -fx-fill: black; }
+.ann-05 { -rtfx-background-color: #77C9FF; -fx-background-color: #77C9FF; -fx-fill: black; }
+.ann-06 { -rtfx-background-color: #7777FF; -fx-background-color: #7777FF; -fx-fill: black; }
+.ann-07 { -rtfx-background-color: #C977FF; -fx-background-color: #C977FF; -fx-fill: black; }
+.ann-08 { -rtfx-background-color: #FF77E4; -fx-background-color: #FF77E4; -fx-fill: black; }
+.ann-09 { -rtfx-background-color: #FF7792; -fx-background-color: #FF7792; -fx-fill: black; }
+.ann-10 { -rtfx-background-color: #FFAE77; -fx-background-color: #FFAE77; -fx-fill: black; }
+
+.ann-btn {
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
 
 .ann-selected { -rtfx-background-color: #000000; -fx-fill: white; }
+
+.ann-list-item {
+    -fx-background-color: -fx-control-inner-background;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(0,0,0,0.10);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0,0.08), 10, 0.2, 0, 2);
+}
+
+.ann-list-item:hover {
+    -fx-border-color: rgba(0,0,0,0.18);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0,0.12), 12, 0.22, 0, 3)
+}
+
+.ann-list-item.selected {
+    -fx-border-color: rgba(0, 120, 215, 0.65);
+    -fx-border-width: 2;
+    -fx-background-color: rgba(0, 120, 215, 0.10);
+}
+
+.ann-list-item .label {
+    -fx-font-size: 13px;
+}
+
+.ann-list-item-delete {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-padding: 4 8;
+    -fx-font-size: 13px;
+    -fx-text-fill: rgba(0,0,0,0.55);
+    -fx-cursor: hand;
+}
+
+.ann-list-item-delete:hover {
+    -fx-background-color: rgba(0,0,0,0.66);
+    -fx-text-fill: rgba(0,0,0,0.85);
+}
+
+.ann-list-item-delete:pressed {
+    -fx-background-color: rgba(0,0,0,0.10);
+}

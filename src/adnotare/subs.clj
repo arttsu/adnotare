@@ -10,15 +10,18 @@
 (defn annotations [context]
   (fx/sub-val context :annotations))
 
+(defn selected-annotation-id [context]
+  (fx/sub-val context :selected-annotation-id))
+
 (defn selected-annotation [context]
-  (fx/sub-val context :selected-annotation))
+  (get (annotations context) (selected-annotation-id context)))
 
 (defn annotated-area-model [context]
   (let [text (text context)
         kinds (annotation-kinds context)
         annotations (annotations context)
-        selected (selected-annotation context)
-        spans (map (fn [{:keys [id start end kind]}]
+        selected (selected-annotation-id context)
+        spans (map (fn [[id {:keys [start end kind]}]]
                      {:start start
                       :end end
                       :color (get-in kinds [kind :color])
@@ -26,3 +29,6 @@
                    annotations)]
     {:text text
      :spans spans}))
+
+(defn rich-area-selection [context]
+  (fx/sub-val context :rich-area-selection))
