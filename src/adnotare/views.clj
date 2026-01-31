@@ -22,7 +22,7 @@
    :wrap-text false
    :text-overrun OverrunStyle/ELLIPSIS
    :max-width Double/MAX_VALUE
-   :style-class ["ann-btn" (str "ann-" color)]
+   :style-class ["ann-kind-btn" (str "ann-" color)]
    :pref-height 44
    :on-action  {:event/type :adnotare/add-annotation
                 :adnotare/kind id}})

@@ -10,11 +10,15 @@
 .ann-09 { -rtfx-background-color: #FF7792; -fx-background-color: #FF7792; -fx-fill: black; }
 .ann-10 { -rtfx-background-color: #FFAE77; -fx-background-color: #FFAE77; -fx-fill: black; }
 
-.ann-btn {
+.ann-kind-btn {
     -fx-background-radius: 8;
     -fx-padding: 10 12;
     -fx-font-size: 13px;
     -fx-font-weight: 600;
+}
+
+.ann-kind-btn:hover {
+    -fx-cursor: hand;
 }
 
 .ann-selected { -rtfx-background-color: #000000; -fx-fill: white; }
