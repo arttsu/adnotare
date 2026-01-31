@@ -8,6 +8,18 @@
 (defn resource-url ^String [path]
   (some-> (io/resource path) str))
 
+(defn toast-banner [{:keys [fx/context]}]
+  (let [{:keys [text]} (subs/toast context)
+        visible? (boolean (seq text))]
+    {:fx/type :h-box
+     :style-class ["toast"]
+     :padding 10
+     :alignment :center-left
+     :visible visible?
+     :managed visible?
+     :children [{:fx/type :label
+                 :text text}]}))
+
 (defn text [{:keys [fx/context adnotare/dispatch!]}]
   {:fx/type annotated-area
    :adnotare/model (subs/annotated-area-model context)
@@ -95,26 +107,31 @@
    :height 600
    :scene {:fx/type :scene
            :stylesheets [(resource-url "app.css")]
-           :root {:fx/type :split-pane
-                  :divider-positions [0.70]
-                  :items [{:fx/type :v-box
-                           :padding 10
-                           :spacing 10
-                           :children [{:fx/type text
-                                       :adnotare/dispatch! dispatch!}
-                                      {:fx/type :h-box
+           :root {:fx/type :v-box
+                  :children [{:fx/type toast-banner}
+                             {:fx/type :split-pane
+                              :divider-positions [0.70]
+                              :items [{:fx/type :v-box
+                                       :padding 10
+                                       :spacing 10
+                                       :children [{:fx/type text
+                                                   :adnotare/dispatch! dispatch!}
+                                                  {:fx/type :h-box
+                                                   :spacing 10
+                                                   :padding 10
+                                                   :children [{:fx/type :button
+                                                               :text "Paste"
+                                                               :on-mouse-clicked {:event/type :adnotare/paste-text}}
+                                                              {:fx/type :button
+                                                               :text "Copy"
+                                                               :on-mouse-clicked {:event/type :adnotare/copy-annotations}}]}]}
+                                      {:fx/type :v-box
                                        :spacing 10
                                        :padding 10
-                                       :children [{:fx/type :button
-                                                   :text "Paste"
-                                                   :on-mouse-clicked {:event/type :adnotare/paste-text}}]}]}
-                          {:fx/type :v-box
-                           :spacing 10
-                           :padding 10
-                           :children [{:fx/type :label
-                                       :text "Annotation kinds"}
-                                      {:fx/type annotation-kinds}
-                                      {:fx/type :separator}
-                                      {:fx/type :label
-                                       :text "Annotations"}
-                                      {:fx/type annotation-list}]}]}}})
+                                       :children [{:fx/type :label
+                                                   :text "Annotation kinds"}
+                                                  {:fx/type annotation-kinds}
+                                                  {:fx/type :separator}
+                                                  {:fx/type :label
+                                                   :text "Annotations"}
+                                                  {:fx/type annotation-list}]}]}]}}})

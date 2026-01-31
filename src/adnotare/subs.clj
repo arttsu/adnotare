@@ -32,3 +32,6 @@
 
 (defn rich-area-selection [context]
   (fx/sub-val context :rich-area-selection))
+
+(defn toast [context]
+  (fx/sub-val context :toast))

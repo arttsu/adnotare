@@ -5,7 +5,10 @@
             [adnotare.views :as views]
             [adnotare.runtime :as rt])
   (:import (javafx.scene.control Alert Alert$AlertType ButtonType)
-           (javafx.scene.input Clipboard)))
+           (javafx.scene.input Clipboard ClipboardContent)
+           (javafx.animation PauseTransition)
+           (javafx.util Duration)
+           (javafx.event EventHandler)))
 
 (def *state
   (atom (fx/create-context {:text "Hello, World! This is a test of Adnotare."
@@ -16,7 +19,8 @@
                             :selected-annotation-id nil
                             :rich-area-selection {:start 0
                                                   :end 0
-                                                  :selected-text ""}}
+                                                  :selected-text ""}
+                            :toast nil}
                            cache/lru-cache-factory)))
 
 (def event-handler
@@ -40,7 +44,19 @@
                                       s (when (.hasString cb) (.getString cb))]
                                   (when (some? s)
                                     (dispatch {:event/type :adnotare/swap-text
-                                               :text s}))))})))
+                                               :text s}))))
+        :copy-to-clipboard (fn [{:keys [text]} _dispatch]
+                             (let [cb (Clipboard/getSystemClipboard)
+                                   content (doto (ClipboardContent.)
+                                             (.putString (or text "")))]
+                               (.setContent cb content)))
+        :dispatch-later (fn [{:keys [ms event]} dispatch]
+                          (let [pt (PauseTransition. (Duration/millis (double (or ms 0))))]
+                            (.setOnFinished pt
+                                            (reify EventHandler
+                                              (handle [_ _]
+                                                (dispatch event))))
+                            (.play pt)))})))
 
 (def renderer
   (fx/create-renderer

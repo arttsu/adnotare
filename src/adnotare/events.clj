@@ -15,6 +15,26 @@
          :selected-annotation-id nil
          :rich-area-selection {:start 0 :end 0 :selected-text ""}))
 
+(defn- xml-escape ^String [s]
+  (-> (str (or s ""))
+      (.replace "&" "&amp;")
+      (.replace "<" "&lt;")
+      (.replace ">" "&gt;")
+      (.replace "\"" "&quot;")
+      (.replace "'" "&apos;")))
+
+(defn- annotations->xmlish [annotations kinds]
+  (let [items (->> annotations
+                   (map (fn [[id a]] (assoc a :id id)))
+                   (sort-by :start))]
+    (apply str
+           (for [{:keys [text kind]} items
+                 :let [kind-text (get-in kinds [kind :text] "")]]
+             (str "<annotation>\n"
+                  "  <quote>\n" (xml-escape text) "\n  </quote>\n"
+                  "  <type>" (xml-escape kind-text) "</type>\n"
+                  "</annotation>\n\n")))))
+
 (defmulti event-handler :event/type)
 
 (defmethod event-handler :adnotare/rich-area-selection-changed [{:keys [fx/context start end selected-text]}]
@@ -52,3 +72,19 @@
 
 (defmethod event-handler :adnotare/swap-text [{:keys [fx/context text]}]
   {:context (fx/swap-context context swap-text text)})
+
+(defmethod event-handler :adnotare/copy-annotations [{:keys [fx/context]}]
+  (let [annotations (subs/annotations context)
+        kinds (subs/annotation-kinds context)]
+    (if (empty? annotations)
+      {:context (fx/swap-context context assoc :toast {:text "No annotations to copy"})
+       :dispatch-later {:ms 1500
+                        :event {:event/type :adnotare/clear-toast}}}
+      (let [s (annotations->xmlish annotations kinds)]
+        {:copy-to-clipboard {:text s}
+         :context (fx/swap-context context assoc :toast {:text "Copied annotations to clipboard"})
+         :dispatch-later {:ms 1500
+                          :event {:event/type :adnotare/clear-toast}}}))))
+
+(defmethod event-handler :adnotare/clear-toast [{:keys [fx/context]}]
+  {:context (fx/swap-context context assoc :toast nil)})

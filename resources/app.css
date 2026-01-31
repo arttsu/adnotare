@@ -64,3 +64,16 @@
 .ann-list-item-delete:pressed {
     -fx-background-color: rgba(0,0,0,0.10);
 }
+
+.toast {
+    -fx-background-color: rgba(0, 0, 0, 0.08);
+    -fx-border-color: rgba(0, 0, 0, 0.12);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 12;
+}
+
+.toast .label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
