@@ -101,7 +101,13 @@
                            :padding 10
                            :spacing 10
                            :children [{:fx/type text
-                                       :adnotare/dispatch! dispatch!}]}
+                                       :adnotare/dispatch! dispatch!}
+                                      {:fx/type :h-box
+                                       :spacing 10
+                                       :padding 10
+                                       :children [{:fx/type :button
+                                                   :text "Paste"
+                                                   :on-mouse-clicked {:event/type :adnotare/paste-text}}]}]}
                           {:fx/type :v-box
                            :spacing 10
                            :padding 10

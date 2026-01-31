@@ -3,7 +3,9 @@
             [clojure.core.cache :as cache]
             [adnotare.events :as events]
             [adnotare.views :as views]
-            [adnotare.runtime :as rt]))
+            [adnotare.runtime :as rt])
+  (:import (javafx.scene.control Alert Alert$AlertType ButtonType)
+           (javafx.scene.input Clipboard)))
 
 (def *state
   (atom (fx/create-context {:text "Hello, World! This is a test of Adnotare."
@@ -24,7 +26,21 @@
       (fx/wrap-effects
        {:context (fx/make-reset-effect *state)
         :dispatch fx/dispatch-effect
-        :clear-rich-area-selection (fn [_] (rt/clear-rich-area-selection!))})))
+        :clear-rich-area-selection (fn [_] (rt/clear-rich-area-selection!))
+        :confirm (fn [{:keys [title header content yes-event]} dispatch]
+                   (let [alert (doto (Alert. Alert$AlertType/CONFIRMATION)
+                                 (.setTitle title)
+                                 (.setHeaderText header)
+                                 (.setContentText content))
+                         res (.orElse (.showAndWait alert) ButtonType/CANCEL)]
+                     (when (= res ButtonType/OK)
+                       (dispatch yes-event))))
+        :paste-from-clipboard (fn [_ dispatch]
+                                (let [cb (Clipboard/getSystemClipboard)
+                                      s (when (.hasString cb) (.getString cb))]
+                                  (when (some? s)
+                                    (dispatch {:event/type :adnotare/swap-text
+                                               :text s}))))})))
 
 (def renderer
   (fx/create-renderer

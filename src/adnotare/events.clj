@@ -3,10 +3,17 @@
             [adnotare.subs :as subs])
   (:import [java.util UUID]))
 
-(defn delete-annotation [context id]
+(defn- delete-annotation [context id]
   (-> context
       (update-in [:annotations] dissoc id)
       (assoc :selected-annotation-id nil)))
+
+(defn- swap-text [context text]
+  (assoc context
+         :text text
+         :annotations {}
+         :selected-annotation-id nil
+         :rich-area-selection {:start 0 :end 0 :selected-text ""}))
 
 (defmulti event-handler :event/type)
 
@@ -31,3 +38,17 @@
 
 (defmethod event-handler :adnotare/delete-annotation [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context delete-annotation id)})
+
+(defmethod event-handler :adnotare/paste-text [{:keys [fx/context]}]
+  (if (empty? (subs/annotations context))
+    {:dispatch {:event/type :adnotare/paste-text-from-clipboard}}
+    {:confirm {:title "Replace text?"
+               :header "Replace text from clipboard?"
+               :content "This will remove all existing annotations. Continue?"
+               :yes-event {:event/type :adnotare/paste-text-from-clipboard}}}))
+
+(defmethod event-handler :adnotare/paste-text-from-clipboard [_]
+  {:paste-from-clipboard nil})
+
+(defmethod event-handler :adnotare/swap-text [{:keys [fx/context text]}]
+  {:context (fx/swap-context context swap-text text)})
