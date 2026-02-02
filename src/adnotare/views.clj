@@ -142,10 +142,10 @@
                                                    :padding 10
                                                    :children [{:fx/type :button
                                                                :text "Paste"
-                                                               :on-mouse-clicked {:event/type :adnotare/paste-text}}
+                                                               :on-action {:event/type :adnotare/paste-text}}
                                                               {:fx/type :button
                                                                :text "Copy"
-                                                               :on-mouse-clicked {:event/type :adnotare/copy-annotations}}]}]}
+                                                               :on-action {:event/type :adnotare/copy-annotations}}]}]}
                                       {:fx/type :v-box
                                        :spacing 10
                                        :padding 10
