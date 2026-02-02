@@ -70,11 +70,18 @@
 }
 
 .toast {
-    -fx-background-color: rgba(0, 0, 0, 0.08);
     -fx-border-color: rgba(0, 0, 0, 0.12);
     -fx-border-radius: 10;
     -fx-background-radius: 10;
     -fx-padding: 10 12;
+}
+
+.toast.success {
+    -fx-background-color: rgba(60, 220, 140, 0.55);
+}
+
+.toast.warning {
+    -fx-background-color: rgba(255, 200, 80, 0.55);
 }
 
 .toast .label {

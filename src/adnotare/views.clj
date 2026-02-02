@@ -8,17 +8,23 @@
 (defn resource-url ^String [path]
   (some-> (io/resource path) str))
 
-(defn toast-banner [[_id {:keys [text]}]]
+(defn toast-banner [[_id {:keys [text type]}]]
   {:fx/type :h-box
-   :style-class ["toast"]
+   :style-class ["toast" type]
    :padding 10
    :alignment :center-left
    :children [{:fx/type :label
-               :text text}]})
+               :text text
+               :max-width 360}]})
 
 (defn toasts [{:keys [fx/context]}]
   (let [toasts (subs/toasts context)]
     {:fx/type :v-box
+     :pick-on-bounds false
+     :alignment :top-right
+     :spacing 10
+     :padding 14
+     :fill-width false
      :visible (any? toasts)
      :children (map toast-banner toasts)}))
 
@@ -126,11 +132,8 @@
    :height 1200
    :scene {:fx/type :scene
            :stylesheets [(resource-url "app.css")]
-           :root {:fx/type :v-box
-                  :children [{:fx/type toasts}
-                             {:fx/type :split-pane
-                              :v-box/vgrow :always
-                              :max-height Double/MAX_VALUE
+           :root {:fx/type :stack-pane
+                  :children [{:fx/type :split-pane
                               :divider-positions [0.6]
                               :items [{:fx/type :v-box
                                        :padding 10
@@ -158,4 +161,6 @@
                                                    :text "Annotations"}
                                                   {:fx/type annotation-list}
                                                   {:fx/type :separator}
-                                                  {:fx/type annotation-note-editor}]}]}]}}})
+                                                  {:fx/type annotation-note-editor}]}]}
+                             {:fx/type toasts
+                              :stack-pane/alignment :top-right}]}}})

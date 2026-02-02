@@ -37,7 +37,7 @@
   (fx/sub-val context :rich-area-selection))
 
 (defn toasts [context]
-  (fx/sub-val context :toasts))
+  (sort-by :created-at (fx/sub-val context :toasts)))
 
 (defn editor-command [context]
   (fx/sub-val context :editor-command))

@@ -96,13 +96,17 @@
         kinds (subs/annotation-kinds context)
         toast-id (UUID/randomUUID)]
     (if (empty? annotations)
-      {:context (fx/swap-context context update-in [:toasts] assoc toast-id {:text "No annotations to copy"})
+      {:context (fx/swap-context context update-in [:toasts] assoc toast-id {:text "No annotations to copy"
+                                                                             :type "warning"
+                                                                             :created-at (System/currentTimeMillis)})
        :dispatch-later {:ms 1500
                         :event {:event/type :adnotare/clear-toast
                                 :adnotare/id toast-id}}}
       (let [s (annotations->xmlish annotations kinds)]
         {:copy-to-clipboard {:text s}
-         :context (fx/swap-context context update-in [:toasts] assoc toast-id {:text "Copied annotations to clipboard"})
+         :context (fx/swap-context context update-in [:toasts] assoc toast-id {:text "Copied annotations to clipboard"
+                                                                               :type "success"
+                                                                               :created-at (System/currentTimeMillis)})
          :dispatch-later {:ms 1500
                           :event {:event/type :adnotare/clear-toast
                                   :adnotare/id toast-id}}}))))
