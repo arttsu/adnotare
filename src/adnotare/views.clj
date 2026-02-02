@@ -24,7 +24,8 @@
 
 (defn text [{:keys [fx/context]}]
   {:fx/type annotated-area
-   :adnotare/model (subs/annotated-area-model context)})
+   :adnotare/model (subs/annotated-area-model context)
+   :adnotare/command (subs/editor-command context)})
 
 (defn annotation-kind-button [id {:keys [color text]}]
   {:fx/type :button

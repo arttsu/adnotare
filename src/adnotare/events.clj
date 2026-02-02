@@ -58,7 +58,8 @@
   (let [{:keys [start end selected-text]} (subs/rich-area-selection context)]
     (if (.isEmpty selected-text)
       {}
-      {:context (fx/swap-context context add-annotation kind start end selected-text)})))
+      {:context (fx/swap-context context add-annotation kind start end selected-text)
+       :dispatch {:event/type :adnotare/editor-clear-selection}})))
 
 (defmethod event-handler :adnotare/select-annotation [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context assoc :selected-annotation-id id)})
@@ -105,3 +106,11 @@
 
 (defmethod event-handler :adnotare/clear-toast [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context update-in [:toasts] dissoc id)})
+
+(defn- issue-editor-command [context cmd]
+  ;; nonce ensures the command map is different each time, even when
+  ;; issuing the same command multiple times.
+  (assoc context :editor-command (assoc cmd :nonce (UUID/randomUUID))))
+
+(defmethod event-handler :adnotare/editor-clear-selection [{:keys [fx/context]}]
+  {:context (fx/swap-context context issue-editor-command {:op :clear-selection})})

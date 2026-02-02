@@ -38,3 +38,6 @@
 
 (defn toasts [context]
   (fx/sub-val context :toasts))
+
+(defn editor-command [context]
+  (fx/sub-val context :editor-command))

@@ -1,6 +1,5 @@
 (ns adnotare.handler
   (:require [adnotare.events :as events]
-            [adnotare.runtime :as rt]
             [cljfx.api :as fx]
             [clojure.core.cache :as cache])
   (:import (javafx.scene.control Alert Alert$AlertType ButtonType)
@@ -21,7 +20,8 @@
                             :rich-area-selection {:start 0
                                                   :end 0
                                                   :selected-text ""}
-                            :toasts {}}
+                            :toasts {}
+                            :editor-command nil}
                            cache/lru-cache-factory)))
 
 (def event-handler
@@ -31,7 +31,6 @@
       (fx/wrap-effects
        {:context (fx/make-reset-effect *state)
         :dispatch fx/dispatch-effect
-        :clear-rich-area-selection (fn [_] (rt/clear-rich-area-selection!))
         :confirm (fn [{:keys [title header content yes-event]} dispatch]
                    (let [alert (doto (Alert. Alert$AlertType/CONFIRMATION)
                                  (.setTitle title)

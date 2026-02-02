@@ -3,11 +3,11 @@
             [cljfx.lifecycle :as lifecycle]
             [cljfx.mutator :as mutator]
             [cljfx.prop :as prop]
-            [adnotare.runtime :as rt]
             [adnotare.handler :as handler])
   (:import (org.fxmisc.richtext CodeArea)
            (org.fxmisc.richtext.model StyleSpansBuilder)
            (org.fxmisc.flowless VirtualizedScrollPane)
+           (javafx.application Platform)
            (javafx.beans.value ChangeListener)
            (javafx.scene.control IndexRange)
            (java.util ArrayList Collection Collections)))
@@ -58,6 +58,11 @@
                                               :end end
                                               :selected-text selected-text}))))))
 
+(defn- run-later! [f]
+  (if (Platform/isFxApplicationThread)
+    (f)
+    (Platform/runLater f)))
+
 (defn- pane->area ^CodeArea [^VirtualizedScrollPane pane]
   (let [ud (.getUserData pane)]
     (when (instance? CodeArea ud)
@@ -78,20 +83,31 @@
                                      (fn [^VirtualizedScrollPane pane ro?]
                                        (when-let [^CodeArea area (pane->area pane)]
                                          (.setEditable area (not (true? ro?))))))
-                                    lifecycle/scalar)}))
+                                    lifecycle/scalar)
+    :adnotare/command (prop/make (mutator/setter
+                                  (fn [^VirtualizedScrollPane pane cmd]
+                                    (when-let [^CodeArea area (pane->area pane)]
+                                      (when (map? cmd)
+                                        (run-later!
+                                         (fn []
+                                           (case (:op cmd)
+                                             :clear-selection
+                                             (do (.deselect area)
+                                                 (.requestFocus area)))))))))
+                                 lifecycle/scalar)}))
 
 (defn- create-code-area-pane []
   (let [area (doto (CodeArea.)
                (.setWrapText true))
         pane (VirtualizedScrollPane. area)]
-    (rt/set-rich-area! area)
     (install-selection-listener! area)
     (.setUserData pane area)
     pane))
 
-(defn annotated-area [{:keys [adnotare/model]}]
+(defn annotated-area [{:keys [adnotare/model adnotare/command]}]
   {:fx/type code-area-pane
    :desc {:fx/type fx/ext-instance-factory
           :create create-code-area-pane}
    :props {:adnotare/model model
-           :adnotare/read-only? true}})
+           :adnotare/read-only? true
+           :adnotare/command command}})
