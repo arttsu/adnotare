@@ -26,14 +26,6 @@
          :selected-annotation-id nil
          :rich-area-selection {:start 0 :end 0 :selected-text ""}))
 
-(defn- xml-escape ^String [s]
-  (-> (str (or s ""))
-      (.replace "&" "&amp;")
-      (.replace "<" "&lt;")
-      (.replace ">" "&gt;")
-      (.replace "\"" "&quot;")
-      (.replace "'" "&apos;")))
-
 (defn- annotations->xmlish [annotations kinds]
   (let [items (->> annotations
                    (map (fn [[id a]] (assoc a :id id)))
@@ -42,9 +34,9 @@
            (for [{:keys [text kind note]} items
                  :let [kind-text (get-in kinds [kind :text] "")]]
              (str "<annotation>\n"
-                  "  <quote>\n" (xml-escape text) "\n  </quote>\n"
-                  "  <type>" (xml-escape kind-text) "</type>\n"
-                  "  <note>\n" (xml-escape note) "\n  </note>\n"
+                  "  <quote>\n" text "\n  </quote>\n"
+                  "  <type>" kind-text "</type>\n"
+                  "  <note>\n" note "\n  </note>\n"
                   "</annotation>\n\n")))))
 
 (defmulti event-handler :event/type)
