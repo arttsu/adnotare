@@ -114,7 +114,7 @@
                  :disable disabled?
                  :wrap-text true
                  :pref-row-count 6
-                 :on-key-released {:event/type :adnotare/update-annotation-note
+                 :on-text-changed {:event/type :adnotare/update-annotation-note
                                    :adnotare/id selected-id}}]}))
 
 (defn root [_]

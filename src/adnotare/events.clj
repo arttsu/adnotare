@@ -68,9 +68,7 @@
   {})
 
 (defmethod event-handler :adnotare/update-annotation-note [{:keys [fx/context adnotare/id fx/event]}]
-  (let [src (.getSource event)
-        note (.getText src)]
-    {:context (fx/swap-context context assoc-in [:annotations id :note] note)}))
+  {:context (fx/swap-context context assoc-in [:annotations id :note] event)})
 
 (defmethod event-handler :adnotare/delete-annotation [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context delete-annotation id)})
