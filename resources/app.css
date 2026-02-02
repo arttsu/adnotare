@@ -1,3 +1,14 @@
+.ann-kind-btn {
+    -fx-background-radius: 8;
+    -fx-padding: 10 12;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.ann-kind-btn:hover {
+    -fx-cursor: hand;
+}
+
 .ann-00 { -rtfx-background-color: #DDDDDD; -fx-background-color: #DDDDDD; -fx-fill: black; }
 .ann-01 { -rtfx-background-color: #FFFF77; -fx-background-color: #FFFF77; -fx-fill: black; }
 .ann-02 { -rtfx-background-color: #AEFF77; -fx-background-color: #AEFF77; -fx-fill: black; }
@@ -10,18 +21,11 @@
 .ann-09 { -rtfx-background-color: #FF7792; -fx-background-color: #FF7792; -fx-fill: black; }
 .ann-10 { -rtfx-background-color: #FFAE77; -fx-background-color: #FFAE77; -fx-fill: black; }
 
-.ann-kind-btn {
-    -fx-background-radius: 8;
-    -fx-padding: 10 12;
-    -fx-font-size: 13px;
-    -fx-font-weight: 600;
+.ann.selected {
+    -rtfx-underline: true;
+    -rtfx-underline-color: rgba(0, 0, 0, 0.85);
+    -rtfx-underline-width: 2;
 }
-
-.ann-kind-btn:hover {
-    -fx-cursor: hand;
-}
-
-.ann-selected { -rtfx-background-color: #000000; -fx-fill: white; }
 
 .ann-list-item {
     -fx-background-color: -fx-control-inner-background;

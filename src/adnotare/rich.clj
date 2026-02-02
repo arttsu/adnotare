@@ -20,10 +20,10 @@
 (defn- ->style-spans [{:keys [text spans]}]
   (let [n (count text)
         events (reduce (fn [acc {:keys [start end color selected]}]
-                         (let [cls (if selected "ann-selected" (str "ann-" color))]
+                         (let [clss (cond-> ["ann" (str "ann-" color)] selected (conj "selected"))]
                            (-> acc
-                               (update start (fnil conj []) [:add cls])
-                               (update end (fnil conj []) [:rem cls]))))
+                               (update start (fnil concat []) (for [cls clss] [:add cls]))
+                               (update end (fnil concat []) (for [cls clss] [:rem cls])))))
                        {}
                        spans)
         idxs (->> (concat [0 n] (keys events)) distinct sort)
