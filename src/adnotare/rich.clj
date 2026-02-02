@@ -63,6 +63,12 @@
     (f)
     (Platform/runLater f)))
 
+(defn- reveal-range! [^CodeArea area start end]
+  (.selectRange area start end)
+  (.requestFollowCaret area)
+  (.deselect area)
+  (.requestFocus area))
+
 (defn- pane->area ^CodeArea [^VirtualizedScrollPane pane]
   (let [ud (.getUserData pane)]
     (when (instance? CodeArea ud)
@@ -93,7 +99,9 @@
                                            (case (:op cmd)
                                              :clear-selection
                                              (do (.deselect area)
-                                                 (.requestFocus area)))))))))
+                                                 (.requestFocus area))
+                                             :reveal-range
+                                             (reveal-range! area (:start cmd) (:end cmd)))))))))
                                  lifecycle/scalar)}))
 
 (defn- create-code-area-pane []

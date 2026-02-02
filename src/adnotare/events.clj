@@ -62,7 +62,10 @@
        :dispatch {:event/type :adnotare/editor-clear-selection}})))
 
 (defmethod event-handler :adnotare/select-annotation [{:keys [fx/context adnotare/id]}]
-  {:context (fx/swap-context context assoc :selected-annotation-id id)})
+  (let [annotations (subs/annotations context)
+        {:keys [start end]} (get annotations id)]
+    {:context (fx/swap-context context assoc :selected-annotation-id id)
+     :dispatch {:event/type :adnotare/editor-reveal-range :adnotare/start start :adnotare/end end}}))
 
 (defmethod event-handler :adnotare/consume-mouse-event [{:keys [fx/event]}]
   (.consume event)
@@ -114,3 +117,6 @@
 
 (defmethod event-handler :adnotare/editor-clear-selection [{:keys [fx/context]}]
   {:context (fx/swap-context context issue-editor-command {:op :clear-selection})})
+
+(defmethod event-handler :adnotare/editor-reveal-range [{:keys [fx/context adnotare/start adnotare/end]}]
+  {:context (fx/swap-context context issue-editor-command {:op :reveal-range :start start :end end})})
