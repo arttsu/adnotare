@@ -1,6 +1,7 @@
 (ns adnotare.views
   (:require [adnotare.subs :as subs]
             [adnotare.rich :refer [annotated-area]]
+            [adnotare.ui-registry :refer [registered]]
             [clojure.java.io :as io])
   (:import [javafx.scene.control OverrunStyle]
            [javafx.geometry Pos]))
@@ -29,9 +30,11 @@
      :children (map toast-banner toasts)}))
 
 (defn text [{:keys [fx/context]}]
-  {:fx/type annotated-area
-   :adnotare/model (subs/annotated-area-model context)
-   :adnotare/command (subs/editor-command context)})
+  (registered
+   :editor
+   {:fx/type annotated-area
+    :adnotare/model (subs/annotated-area-model context)
+    :adnotare/command (subs/editor-command context)}))
 
 (defn annotation-kind-button [id {:keys [color text]}]
   {:fx/type :button
@@ -116,13 +119,15 @@
      :spacing 6
      :children [{:fx/type :label
                  :text "Additional note"}
-                {:fx/type :text-area
-                 :text note
-                 :disable disabled?
-                 :wrap-text true
-                 :pref-row-count 6
-                 :on-text-changed {:event/type :adnotare/update-annotation-note
-                                   :adnotare/id selected-id}}]}))
+                (registered
+                 :additional-note
+                 {:fx/type :text-area
+                  :text note
+                  :disable disabled?
+                  :wrap-text true
+                  :pref-row-count 6
+                  :on-text-changed {:event/type :adnotare/update-annotation-note
+                                    :adnotare/id selected-id}})]}))
 
 (defn root [_]
   {:fx/type :stage

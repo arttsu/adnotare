@@ -59,13 +59,22 @@
     (if (.isEmpty selected-text)
       {}
       {:context (fx/swap-context context add-annotation kind start end selected-text)
-       :dispatch {:event/type :adnotare/editor-clear-selection}})))
+       :dispatch-later {:ms 10
+                        :event {:event/type :adnotare/post-add-annotation}}})))
+
+(defmethod event-handler :adnotare/post-add-annotation [_]
+  {:ui {:ops [{:op :clear-selection :node :editor}
+              {:op :focus :node :additional-note}]}})
 
 (defmethod event-handler :adnotare/select-annotation [{:keys [fx/context adnotare/id]}]
-  (let [annotations (subs/annotations context)
-        {:keys [start end]} (get annotations id)]
-    {:context (fx/swap-context context assoc :selected-annotation-id id)
-     :dispatch {:event/type :adnotare/editor-reveal-range :adnotare/start start :adnotare/end end}}))
+  {:context (fx/swap-context context assoc :selected-annotation-id id)
+   :dispatch-later {:ms 10
+                    :event {:event/type :adnotare/post-select-annotation}}})
+
+(defmethod event-handler :adnotare/post-select-annotation [{:keys [fx/context]}]
+  (let [{:keys [start end]} (subs/selected-annotation context)]
+    {:ui {:ops [{:op :reveal-range :node :editor :start start :end end}
+                {:op :focus :node :additional-note}]}}))
 
 (defmethod event-handler :adnotare/consume-mouse-event [{:keys [fx/event]}]
   (.consume event)
@@ -113,14 +122,3 @@
 
 (defmethod event-handler :adnotare/clear-toast [{:keys [fx/context adnotare/id]}]
   {:context (fx/swap-context context update-in [:toasts] dissoc id)})
-
-(defn- issue-editor-command [context cmd]
-  ;; nonce ensures the command map is different each time, even when
-  ;; issuing the same command multiple times.
-  (assoc context :editor-command (assoc cmd :nonce (UUID/randomUUID))))
-
-(defmethod event-handler :adnotare/editor-clear-selection [{:keys [fx/context]}]
-  {:context (fx/swap-context context issue-editor-command {:op :clear-selection})})
-
-(defmethod event-handler :adnotare/editor-reveal-range [{:keys [fx/context adnotare/start adnotare/end]}]
-  {:context (fx/swap-context context issue-editor-command {:op :reveal-range :start start :end end})})

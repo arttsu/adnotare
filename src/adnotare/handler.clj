@@ -1,12 +1,17 @@
 (ns adnotare.handler
   (:require [adnotare.events :as events]
+            [adnotare.ui-registry :as ui-registry]
             [cljfx.api :as fx]
             [clojure.core.cache :as cache])
-  (:import (javafx.scene.control Alert Alert$AlertType ButtonType)
+  (:import (javafx.application Platform)
+           (javafx.scene Node)
+           (javafx.scene.control Alert Alert$AlertType ButtonType)
            (javafx.scene.input Clipboard ClipboardContent)
            (javafx.animation PauseTransition)
            (javafx.util Duration)
-           (javafx.event EventHandler)))
+           (javafx.event EventHandler)
+           (org.fxmisc.flowless VirtualizedScrollPane)
+           (org.fxmisc.richtext CodeArea)))
 
 (def *state
   (atom (fx/create-context {:text "Hello, World! This is a test of Adnotare."
@@ -20,9 +25,13 @@
                             :rich-area-selection {:start 0
                                                   :end 0
                                                   :selected-text ""}
-                            :toasts {}
-                            :editor-command nil}
+                            :toasts {}}
                            cache/lru-cache-factory)))
+
+(defn- run-later! [f]
+  (if (Platform/isFxApplicationThread)
+    (f)
+    (Platform/runLater f)))
 
 (def event-handler
   (-> events/event-handler
@@ -56,4 +65,22 @@
                                             (reify EventHandler
                                               (handle [_ _]
                                                 (dispatch event))))
-                            (.play pt)))})))
+                            (.play pt)))
+        :ui (fn [{:keys [ops]} _dispatch]
+              (run-later!
+               (fn []
+                 (doseq [op ops]
+                   (when-let [^Node node (ui-registry/node (:node op))]
+                     (case (:op op)
+                       :focus
+                       (.requestFocus node)
+                       :clear-selection
+                       (when (instance? VirtualizedScrollPane node)
+                         (let [^CodeArea area (.getUserData node)]
+                           (.deselect area)))
+                       :reveal-range
+                       (when (instance? VirtualizedScrollPane node)
+                         (let [^CodeArea area (.getUserData node)]
+                           (.selectRange area (:start op) (:end op))
+                           (.requestFollowCaret area)
+                           (.deselect area)))))))))})))
