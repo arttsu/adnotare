@@ -91,16 +91,19 @@
 
 (defmethod event-handler :adnotare/copy-annotations [{:keys [fx/context]}]
   (let [annotations (subs/annotations context)
-        kinds (subs/annotation-kinds context)]
+        kinds (subs/annotation-kinds context)
+        toast-id (UUID/randomUUID)]
     (if (empty? annotations)
-      {:context (fx/swap-context context assoc :toast {:text "No annotations to copy"})
+      {:context (fx/swap-context context update-in [:toasts] assoc toast-id {:text "No annotations to copy"})
        :dispatch-later {:ms 1500
-                        :event {:event/type :adnotare/clear-toast}}}
+                        :event {:event/type :adnotare/clear-toast
+                                :adnotare/id toast-id}}}
       (let [s (annotations->xmlish annotations kinds)]
         {:copy-to-clipboard {:text s}
-         :context (fx/swap-context context assoc :toast {:text "Copied annotations to clipboard"})
+         :context (fx/swap-context context update-in [:toasts] assoc toast-id {:text "Copied annotations to clipboard"})
          :dispatch-later {:ms 1500
-                          :event {:event/type :adnotare/clear-toast}}}))))
+                          :event {:event/type :adnotare/clear-toast
+                                  :adnotare/id toast-id}}}))))
 
-(defmethod event-handler :adnotare/clear-toast [{:keys [fx/context]}]
-  {:context (fx/swap-context context assoc :toast nil)})
+(defmethod event-handler :adnotare/clear-toast [{:keys [fx/context adnotare/id]}]
+  {:context (fx/swap-context context update-in [:toasts] dissoc id)})

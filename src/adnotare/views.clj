@@ -8,17 +8,19 @@
 (defn resource-url ^String [path]
   (some-> (io/resource path) str))
 
-(defn toast-banner [{:keys [fx/context]}]
-  (let [{:keys [text]} (subs/toast context)
-        visible? (boolean (seq text))]
-    {:fx/type :h-box
-     :style-class ["toast"]
-     :padding 10
-     :alignment :center-left
-     :visible visible?
-     :managed visible?
-     :children [{:fx/type :label
-                 :text text}]}))
+(defn toast-banner [[_id {:keys [text]}]]
+  {:fx/type :h-box
+   :style-class ["toast"]
+   :padding 10
+   :alignment :center-left
+   :children [{:fx/type :label
+               :text text}]})
+
+(defn toasts [{:keys [fx/context]}]
+  (let [toasts (subs/toasts context)]
+    {:fx/type :v-box
+     :visible (any? toasts)
+     :children (map toast-banner toasts)}))
 
 (defn text [{:keys [fx/context]}]
   {:fx/type annotated-area
@@ -124,7 +126,7 @@
    :scene {:fx/type :scene
            :stylesheets [(resource-url "app.css")]
            :root {:fx/type :v-box
-                  :children [{:fx/type toast-banner}
+                  :children [{:fx/type toasts}
                              {:fx/type :split-pane
                               :v-box/vgrow :always
                               :max-height Double/MAX_VALUE

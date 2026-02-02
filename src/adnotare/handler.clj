@@ -21,7 +21,7 @@
                             :rich-area-selection {:start 0
                                                   :end 0
                                                   :selected-text ""}
-                            :toast nil}
+                            :toasts {}}
                            cache/lru-cache-factory)))
 
 (def event-handler
