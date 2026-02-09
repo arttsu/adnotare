@@ -17,13 +17,15 @@ fmt:
 lint:
     clj -M:dev -m clj-kondo.main --lint src test
 
+# Run tests
 test:
     bin/kaocha
 
+# Run tests and generate a coverage report
 test-cov:
     bin/kaocha --plugin cloverage
 
-# Lint and format
+# Lint, format, and test
 pre-pr:
     @just lint
     @just fmt

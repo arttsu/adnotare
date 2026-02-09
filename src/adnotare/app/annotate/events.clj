@@ -27,6 +27,7 @@
   (let [palette-id (subs/active-palette-id context)
         prompt-ref {:palette-id palette-id :prompt-id prompt-id}]
     (if (.isEmpty (:text selection))
+      ;; TODO: Reduce nesting.
       {:toast {:toast (->toast "Please select some text first" :warning)}}
       {:context (fx/swap-context context session/add-annotation prompt-ref selection)
        :ui {:updates [{:node-key :annotate/doc :op :clear-selection}
