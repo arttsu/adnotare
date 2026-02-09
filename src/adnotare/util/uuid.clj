@@ -1,8 +1,8 @@
 (ns adnotare.util.uuid
   (:import (java.util UUID)))
 
-(defn new-uuid []
+(defn random ^UUID []
   (UUID/randomUUID))
 
-(defn uuid ^UUID [^String name]
+(defn named ^UUID [^String name]
   (UUID/nameUUIDFromBytes (.getBytes (str name) "UTF-8")))

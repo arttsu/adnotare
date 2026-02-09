@@ -1,39 +1,38 @@
 (ns adnotare.app.annotate.subs
-  (:require [adnotare.model.prompt-palette :as palette]
-            [adnotare.model.prompt-palettes :as palettes]
-            [adnotare.model.session :as session]
-            [cljfx.api :as fx]))
-
-(defn- annotations [context]
-  (fx/sub-val context session/annotations))
+  (:require
+   [adnotare.model.schema :as S]
+   [adnotare.model.session :as session]
+   [cljfx.api :as fx]
+   [malli.core :as m]))
 
 (defn doc-rich-text [context]
-  (fx/sub-val context session/doc-rich-text))
+  (fx/sub-val context (comp session/doc-rich-text :state/session)))
+(m/=> doc-rich-text [:-> S/Context S/RichTextModel])
 
-(defn active-palette-id [context]
-  (fx/sub-val context session/active-palette-id))
+(defn active-prompts [context]
+  (some-> (fx/sub-val context (comp session/active-palette :state/session)) :prompts))
+(m/=> active-prompts [:-> S/Context [:maybe [:sequential S/Prompt]]])
 
-(defn active-palette [context]
-  (let [id (fx/sub-ctx context active-palette-id)]
-    (fx/sub-val context palettes/palette-by-id id)))
-
-(defn sorted-prompts [context]
-  (let [active-palette (fx/sub-ctx context active-palette)]
-    (palette/sorted-prompts active-palette)))
-
-(defn sorted-annotations [context]
-  (sort-by (comp :start :selection) (fx/sub-ctx context annotations)))
+(defn annotations [context]
+  (fx/sub-val context (comp session/annotations :state/session)))
+(m/=> annotations [:-> S/Context [:sequential S/Annotation]])
 
 (defn any-annotations? [context]
-  (let [dict (fx/sub-val context session/annotations-by-id)]
-    (not (empty? dict))))
+  (not (nil? (fx/sub-val context (comp session/annotation-ids :state/session)))))
+(m/=> any-annotations? [:-> S/Context :boolean])
+
+(defn selected-annotation [context]
+  (fx/sub-val context (comp session/selected-annotation :state/session)))
+(m/=> selected-annotation [:-> S/Context [:maybe S/Annotation]])
 
 (defn selected-annotation-note [context]
-  (fx/sub-val context session/selected-annotation-note))
+  (some-> (fx/sub-ctx context selected-annotation) :note))
+(m/=> selected-annotation-note [:-> S/Context [:maybe :string]])
 
 (defn selected-annotation-selection [context]
-  (when-let [annotation (fx/sub-val context session/selected-annotation)]
-    (:selection annotation)))
+  (some-> (fx/sub-ctx context selected-annotation) :selection))
+(m/=> selected-annotation-selection [:-> S/Context [:maybe S/Selection]])
 
-(defn annotations-str [context]
-  (fx/sub-val context session/annotations-str))
+(defn annotations-for-llm [context]
+  (fx/sub-val context (comp session/annotations-for-llm :state/session)))
+(m/=> annotations-for-llm [:-> S/Context :string])

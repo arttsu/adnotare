@@ -1,91 +1,147 @@
 (ns adnotare.model.session-test
-  (:require [adnotare.model.schema :as S]
-            [adnotare.model.session :as session]
-            [adnotare.test.constants :refer [default-state]]
-            [adnotare.test.schema :refer [is-valid]]
-            [adnotare.util.uuid :refer [uuid]]
+  (:require [adnotare.model.session :as session]
+            [adnotare.test.constants :refer [default-session]]
+            [adnotare.util.uuid :as uuid]
             [clojure.test :refer [deftest testing is]]))
 
+(defn- sort-by-start [annotations]
+  (vec (sort-by (comp :start :selection) annotations)))
+
 (deftest doc-rich-text
-  (testing "builds rich text model from doc and annotations"
-    (let [model (session/doc-rich-text default-state)]
-      (is-valid S/RichTextModel model)
+  (testing "builds rich text model from document text and annotations"
+    (let [model (session/doc-rich-text default-session)]
       (is (= {:text "Hello World! This is a test of Adnotare."
               :spans [{:start 13 :end 27 :style-classes ["rich-text-span" "color-5"]}
                       {:start 31 :end 39 :style-classes ["rich-text-span" "color-3" "selected"]}]}
              model)))))
 
-(deftest selected-annotation-note
-  (testing "returns the note of the selected annotation"
-    (is (= "Etymology" (session/selected-annotation-note default-state))))
-  (testing "returns nil when no annotation is selected"
-    (let [state (session/clear-annotation-selection default-state)]
-      (is (nil? (session/selected-annotation-note state))))))
+(deftest annotation-ids
+  (testing "returns annotation ids"
+    (is (= #{(uuid/named "ann-1") (uuid/named "ann-2")}
+           (set (session/annotation-ids default-session))))))
 
-(deftest annotations-str
-  (testing "formats annotations for an LLM"
-    (let [annotations (session/annotations-str default-state)]
-      (is (= (str "<annotation>\n"
-                  "  <quote>\n"
-                  "    This is a test\n"
-                  "  </quote>\n"
-                  "  <prompt>\n"
-                  "    Explain this\n"
-                  "  </prompt>\n"
-                  "</annotation>\n\n"
-                  "<annotation>\n"
-                  "  <quote>\n"
-                  "    Adnotare\n"
-                  "  </quote>\n"
-                  "  <prompt>\n"
-                  "    Give more details\n"
-                  "  </prompt>\n"
-                  "  <note>\n"
-                  "    Etymology\n"
-                  "  </note>\n"
-                  "</annotation>\n")
+(deftest active-palette
+  (testing "returns active palette data when active"
+    (let [palette (session/active-palette default-session)]
+      (is (= "Default" (:label palette)))
+      (is (= ["Generic" "Are you sure about this?"] (take 2 (map :text (:prompts palette)))))))
+  ;; TODO: Use public function (delete-all-palettes).
+  (testing "returns nil when no active palette"
+    (is (nil? (session/active-palette (assoc-in default-session [:annotate :active-palette-id] nil))))))
+
+(deftest annotations
+  (testing "denormalizes annotations with prompt and selection state"
+    (let [annotations (sort-by-start (session/annotations default-session))]
+      (is (= [{:id (uuid/named "ann-1")
+               :note ""
+               :prompt {:text "Explain this" :color 5}
+               :prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-2")}
+               :selected? false
+               :selection {:start 13 :end 27 :text "This is a test"}}
+              {:id (uuid/named "ann-2")
+               :note "Etymology"
+               :prompt {:text "Give more details" :color 3}
+               :prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-4")}
+               :selected? true
+               :selection {:start 31 :end 39 :text "Adnotare"}}]
              annotations)))))
 
+(deftest selected-annotation
+  (testing "returns selected denormalized annotation"
+    (is (= {:prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-4")}
+            :prompt {:text "Give more details" :color 3}
+            :selected? true
+            :id (uuid/named "ann-2")
+            :selection {:start 31 :end 39 :text "Adnotare"}
+            :note "Etymology"}
+           (session/selected-annotation default-session))))
+  (testing "returns nil when nothing selected"
+    (is (nil? (session/selected-annotation
+               (session/clear-annotation-selection default-session))))))
+
+(deftest annotations-for-llm
+  (testing "formats annotations for an LLM"
+    (let [annotations (session/annotations-for-llm default-session)
+          expected "<annotation>
+<quote>
+This is a test
+</quote>
+<prompt>
+Explain this
+</prompt>
+</annotation>
+
+<annotation>
+<quote>
+Adnotare
+</quote>
+<prompt>
+Give more details
+</prompt>
+<note>
+Etymology
+</note>
+</annotation>
+"]
+      (is (= expected annotations)))))
+
+(deftest activate-last-used-palette
+  (testing "activates the most recently used palette when available"
+    (let [session-with-last-used (assoc-in default-session
+                                           [:palettes :last-used-ms]
+                                           {(uuid/named "default-palette") 123
+                                            (uuid/named "older-palette") 12})
+          new-session (session/activate-last-used-palette session-with-last-used)]
+      (is (= "Default" (:label (session/active-palette new-session))))))
+  (testing "falls back to first palette when none used"
+    (let [new-session (session/activate-last-used-palette
+                       (assoc-in default-session [:annotate :active-palette-id] nil))]
+      (is (= "Default" (:label (session/active-palette new-session)))))))
+
 (deftest select-annotation
-  (testing "selects the annotation with the given ID"
-    (let [new-state (session/select-annotation default-state (uuid "ann-1"))]
-      (is-valid S/State new-state)
-      (is (= (uuid "ann-1") (session/selected-annotation-id new-state))))))
+  (testing "selects the annotation with the given id"
+    (let [new-session (session/select-annotation default-session (uuid/named "ann-1"))]
+      (is (= (uuid/named "ann-1") (get-in new-session [:annotate :annotations :selected-id]))))))
 
 (deftest add-annotation
   (testing "adds a new annotation and selects it"
-    (let [prompt-ref {:palette-id (uuid "default-palette") :prompt-id (uuid "default-prompt-3")}
-          selection {:start 6 :end 11 :text "World"}
-          new-state (session/add-annotation default-state prompt-ref selection (partial uuid "ann-3"))]
-      (is-valid S/State new-state)
-      (is (= #{(uuid "ann-1") (uuid "ann-2") (uuid "ann-3")} (set (keys (session/annotations-by-id new-state)))))
-      (is (= {:prompt-ref prompt-ref :selection selection :note ""} (session/annotation-by-id new-state (uuid "ann-3"))))
-      (is (= (uuid "ann-3") (session/selected-annotation-id new-state))))))
-
-(deftest delete-annotation
-  (testing "deletes the annotation with the given ID"
-    (let [new-state (session/delete-annotation default-state (uuid "ann-1"))]
-      (is-valid S/State new-state)
-      (is (= #{(uuid "ann-2")} (set (keys (session/annotations-by-id new-state)))))
-      (is (= (uuid "ann-2") (session/selected-annotation-id new-state)))))
-  (testing "when the annotation is selected, clears selection"
-    (let [new-state (session/delete-annotation default-state (uuid "ann-2"))]
-      (is-valid S/State new-state)
-      (is (= #{(uuid "ann-1")} (set (keys (session/annotations-by-id new-state)))))
-      (is (nil? (session/selected-annotation-id new-state))))))
-
-(deftest replace-doc
-  (testing "replaces document text and removes all annotations"
-    (let [text "New document"
-          new-state (session/replace-doc default-state text)]
-      (is-valid S/State new-state)
-      (is (= text (session/doc-text new-state)))
-      (is (empty? (session/annotations-by-id new-state)))
-      (is (nil? (session/selected-annotation-id new-state))))))
+    (let [selection {:start 6 :end 11 :text "World"}
+          new-session (session/add-annotation default-session (uuid/named "default-prompt-3") selection #(uuid/named "ann-3"))]
+      (is (= #{(uuid/named "ann-1") (uuid/named "ann-2") (uuid/named "ann-3")}
+             (set (keys (get-in new-session [:annotate :annotations :by-id])))))
+      (is (= {:prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-3")}
+              :selection selection
+              :note ""}
+             (get-in new-session [:annotate :annotations :by-id (uuid/named "ann-3")])))
+      (is (= (uuid/named "ann-3") (get-in new-session [:annotate :annotations :selected-id]))))))
 
 (deftest update-selected-annotation-note
   (testing "replaces the note of the selected annotation"
     (let [text "New note"
-          new-state (session/update-selected-annotation-note default-state text)]
-      (is-valid S/State new-state)
-      (is (= text (session/selected-annotation-note new-state))))))
+          new-session (session/update-selected-annotation-note default-session text)]
+      (is (= text (get-in new-session [:annotate :annotations :by-id (uuid/named "ann-2") :note]))))))
+
+(deftest clear-annotation-selection
+  (testing "clears the selected annotation"
+    (is (nil? (get-in (session/clear-annotation-selection default-session)
+                      [:annotate :annotations :selected-id])))))
+
+(deftest delete-annotation
+  (testing "deletes the annotation with the given id"
+    (let [new-session (session/delete-annotation default-session (uuid/named "ann-1"))]
+      (is (= #{(uuid/named "ann-2")}
+             (set (keys (get-in new-session [:annotate :annotations :by-id])))))
+      (is (= (uuid/named "ann-2") (get-in new-session [:annotate :annotations :selected-id])))))
+  (testing "when the annotation is selected, clears selection"
+    (let [new-session (session/delete-annotation default-session (uuid/named "ann-2"))]
+      (is (= #{(uuid/named "ann-1")}
+             (set (keys (get-in new-session [:annotate :annotations :by-id])))))
+      (is (nil? (get-in new-session [:annotate :annotations :selected-id]))))))
+
+(deftest replace-doc
+  (testing "replaces document text and removes all annotations"
+    (let [text "New document"
+          new-session (session/replace-doc default-session text)]
+      (is (= text (:text (session/doc-rich-text new-session))))
+      (is (nil? (session/annotation-ids new-session)))
+      (is (nil? (session/selected-annotation new-session))))))

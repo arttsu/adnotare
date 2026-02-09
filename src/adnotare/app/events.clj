@@ -1,6 +1,6 @@
 (ns adnotare.app.events
   (:require [adnotare.fx.handler :refer [handle-event]]
-            [adnotare.model.ui :as ui]
+            [adnotare.model.app :as app]
             [cljfx.api :as fx])
   (:import (javafx.application Platform)))
 
@@ -9,7 +9,7 @@
   (System/exit 0))
 
 (defmethod handle-event :app/add-toast [{:keys [fx/context id toast]}]
-  {:context (fx/swap-context context ui/add-toast id toast)})
+  {:context (fx/swap-context context update-in [:state/app] app/add-toast id toast)})
 
 (defmethod handle-event :app/clear-toast [{:keys [fx/context id]}]
-  {:context (fx/swap-context context ui/clear-toast id)})
+  {:context (fx/swap-context context update-in [:state/app] app/clear-toast id)})

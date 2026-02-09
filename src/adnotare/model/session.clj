@@ -1,109 +1,163 @@
 (ns adnotare.model.session
-  (:require [adnotare.model.prompt-palettes :as palettes]
-            [adnotare.model.schema :as S]
-            [adnotare.util.uuid :refer [new-uuid]]
-            [clojure.string :refer [blank?]]
-            [malli.core :as m]))
+  (:require
+   [adnotare.model.schema :as S]
+   [clojure.string :refer [blank?]]
+   [malli.core :as m])
+  (:import
+   (java.util UUID)))
 
-(defn doc-text [state]
-  (get-in state [:session :doc :text]))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;; Private Readers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 
-(defn annotations-by-id [state]
-  (get-in state [:session :annotations :by-id]))
+(defn- doc-text [session]
+  (get-in session [:annotate :doc :text]))
 
-(defn annotation-by-id [state id]
-  (get (annotations-by-id state) id))
+(defn- annotation-id-map [session]
+  (get-in session [:annotate :annotations :by-id]))
 
-(defn selected-annotation-id [state]
-  (get-in state [:session :annotations :selected-id]))
+(defn- annotation-by-id [session id]
+  (get (annotation-id-map session) id))
 
-(defn annotation-selected? [state id]
-  (= id (selected-annotation-id state)))
+(defn- selected-annotation-id [session]
+  (get-in session [:annotate :annotations :selected-id]))
 
-(defn active-palette-id [state]
-  (get-in state [:session :active-palette-id]))
+(defn- annotation-selected? [session id]
+  (= id (selected-annotation-id session)))
 
-(defn- denorm-annotation [state id annotation]
-  (let [prompt (palettes/prompt-by-ref state (:prompt-ref annotation))
-        selected? (annotation-selected? state id)]
-    (assoc annotation
-           :id id
-           :prompt prompt
-           :selected? selected?)))
+(defn- palette-by-id [session id]
+  (get-in session [:palettes :by-id id]))
 
-(defn- denorm-annotation->styled-rich-text-span [{:keys [prompt selection selected?]}]
-  (let [style-classes (cond-> ["rich-text-span" (str "color-" (:color prompt))]
-                        selected? (conj "selected"))]
-    {:start (:start selection) :end (:end selection) :style-classes style-classes}))
+(defn- active-palette-id [session]
+  (get-in session [:annotate :active-palette-id]))
 
-(defn annotations [state]
-  (mapv (fn [[id annotation]] (denorm-annotation state id annotation)) (annotations-by-id state)))
+(defn- prompt-by-ref
+  ([session {:keys [palette-id prompt-id]}]
+   (prompt-by-ref session palette-id prompt-id))
+  ([session palette-id prompt-id]
+   (get-in session [:palettes :by-id palette-id :prompts :by-id prompt-id])))
 
-(defn doc-rich-text [state]
-  (let [spans (map denorm-annotation->styled-rich-text-span (annotations state))]
-    {:text (doc-text state) :spans spans}))
-(m/=> doc-rich-text [:-> S/State S/RichTextModel])
+(defn- last-used-palette-id [session]
+  (let [last-used-ms (get-in session [:palettes :last-used-ms])]
+    (if (seq last-used-ms)
+      (first (apply max-key val last-used-ms))
+      (first (keys (get-in session [:palettes :by-id]))))))
 
-(defn selected-annotation [state]
-  (when-let [id (selected-annotation-id state)]
-    (annotation-by-id state id)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;; Public Readers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 
-;; TODO: Get rid of it and use 'selected-annotation' instead in subs?
-(defn selected-annotation-note [state]
-  (when-let [annotation (selected-annotation state)]
-    (:note annotation)))
+(defn active-palette [session]
+  (when-let [id (active-palette-id session)]
+    (let [normalized (palette-by-id session id)
+          {prompt-id-map :by-id prompt-order :order} (:prompts normalized)
+          prompts (map (fn [id] (assoc (get prompt-id-map id) :id id)) prompt-order)]
+      (assoc normalized
+             :id id
+             :prompts prompts))))
+(m/=> active-palette [:-> S/Session [:maybe S/Palette]])
 
-(defn- annotation-str [{:keys [selection prompt note]}]
-  (cond-> (str "<annotation>\n"
-               "  <quote>\n"
-               "    " (:text selection) "\n"
-               "  </quote>\n"
-               "  <prompt>\n"
-               "    " (:text prompt) "\n"
-               "  </prompt>\n")
-    (not (blank? note)) (str "  <note>\n"
-                             "    " note "\n"
-                             "  </note>\n")
-    true (str "</annotation>\n")))
+(defn annotation-ids [session]
+  (keys (annotation-id-map session)))
+(m/=> annotation-ids [:-> S/Session [:maybe [:sequential :uuid]]])
 
-(defn annotations-str [state]
-  (let [annotations (annotations state)
+(defn annotations [session]
+  (->> (annotation-id-map session)
+       (mapv (fn [[id annotation]]
+               (let [prompt (prompt-by-ref session (:prompt-ref annotation))
+                     selected? (annotation-selected? session id)]
+                 (assoc annotation :id id :prompt prompt :selected? selected?))))
+       (sort-by (comp :start :selection))))
+(m/=> annotations [:-> S/Session [:sequential S/Annotation]])
+
+(defn selected-annotation [session]
+  (when-let [id (selected-annotation-id session)]
+    (let [annotation (annotation-by-id session id)]
+      (assoc (annotation-by-id session id)
+             :id id
+             :prompt (prompt-by-ref session (:prompt-ref annotation))
+             :selected? (annotation-selected? session id)))))
+(m/=> selected-annotation [:-> S/Session [:maybe S/Annotation]])
+
+(defn doc-rich-text [session]
+  (let [spans (map (fn [{:keys [prompt selection selected?]}]
+                     (let [style-classes (cond-> ["rich-text-span" (str "color-" (:color prompt))]
+                                           selected? (conj "selected"))]
+                       {:start (:start selection) :end (:end selection) :style-classes style-classes}))
+                   (annotations session))]
+    {:text (doc-text session)
+     :spans spans}))
+(m/=> doc-rich-text [:-> S/Session S/RichTextModel])
+
+(defn annotations-for-llm [session]
+  (let [annotations (annotations session)
         sorted (sort-by (comp :start :selection) annotations)]
-    (String/join "\n" (map annotation-str sorted))))
-(m/=> annotations-str [:-> S/State :string])
+    (String/join
+     "\n"
+     (map (fn [{:keys [selection prompt note]}]
+            (cond-> (str "<annotation>\n"
+                         "<quote>\n"
+                         (:text selection) "\n"
+                         "</quote>\n"
+                         "<prompt>\n"
+                         (:text prompt) "\n"
+                         "</prompt>\n")
+              (not (blank? note)) (str "<note>\n"
+                                       note "\n"
+                                       "</note>\n")
+              true (str "</annotation>\n")))
+          sorted))))
+(m/=> annotations-for-llm [:-> S/Session :string])
 
-(defn select-annotation [state id]
-  (assoc-in state [:session :annotations :selected-id] id))
-(m/=> select-annotation [:-> S/State :uuid S/State])
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;; Public Transformers
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
 
-(defn clear-annotation-selection [state]
-  (assoc-in state [:session :annotations :selected-id] nil))
-(m/=> clear-annotation-selection [:-> S/State S/State])
+(defn activate-last-used-palette [session]
+  (if-let [palette-id (last-used-palette-id session)]
+    (assoc-in session [:annotate :active-palette-id] palette-id)
+    session))
+(m/=> activate-last-used-palette [:-> S/Session S/Session])
+
+(defn select-annotation [session id]
+  (assoc-in session [:annotate :annotations :selected-id] id))
+(m/=> select-annotation [:-> S/Session :uuid S/Session])
 
 (defn add-annotation
-  ([state prompt-ref selection]
-   (add-annotation state prompt-ref selection new-uuid))
-  ([state prompt-ref selection uuid-fn]
-   (let [id (uuid-fn)
-         annotation {:prompt-ref prompt-ref :selection selection :note ""}]
-     (-> state
-         (assoc-in [:session :annotations :by-id id] annotation)
-         (assoc-in [:session :annotations :selected-id] id)))))
+  ([session prompt-id selection]
+   (add-annotation session prompt-id selection UUID/randomUUID))
+  ([session prompt-id selection uuid-gen]
+   (let [id (uuid-gen)
+         palette-id (active-palette-id session)
+         annotation {:prompt-ref {:palette-id palette-id :prompt-id prompt-id} :selection selection :note ""}]
+     (-> session
+         (assoc-in [:annotate :annotations :by-id id] annotation)
+         (select-annotation id)))))
 (m/=> add-annotation [:function
-                      [:-> S/State S/PromptRef S/Selection S/State]
-                      [:-> S/State S/PromptRef S/Selection [:-> :uuid] S/State]])
+                      [:-> S/Session :uuid S/Selection S/Session]
+                      [:-> S/Session :uuid S/Selection [:-> :uuid] S/Session]])
 
-(defn delete-annotation [state id]
-  (cond-> (update-in state [:session :annotations :by-id] dissoc id)
-    (annotation-selected? state id) (assoc-in [:session :annotations :selected-id] nil)))
-(m/=> delete-annotation [:-> S/State :uuid S/State])
+(defn update-selected-annotation-note [session text]
+  (assoc-in session [:annotate :annotations :by-id (selected-annotation-id session) :note] text))
+(m/=> update-selected-annotation-note [:-> S/Session :string S/Session])
 
-(defn replace-doc [state text]
-  (-> state
-      (assoc-in [:session :doc :text] text)
-      (assoc-in [:session :annotations] {:by-id {} :selected-id nil})))
-(m/=> replace-doc [:-> S/State :string S/State])
+(defn clear-annotation-selection [session]
+  (assoc-in session [:annotate :annotations :selected-id] nil))
+(m/=> clear-annotation-selection [:-> S/Session S/Session])
 
-(defn update-selected-annotation-note [state text]
-  (assoc-in state [:session :annotations :by-id (selected-annotation-id state) :note] text))
-(m/=> update-selected-annotation-note [:-> S/State :string S/State])
+(defn delete-annotation [session id]
+  (cond-> (update-in session [:annotate :annotations :by-id] dissoc id)
+    (annotation-selected? session id) (clear-annotation-selection)))
+(m/=> delete-annotation [:-> S/Session :uuid S/Session])
+
+(defn replace-doc [session text]
+  (-> session
+      (assoc-in [:annotate :doc :text] text)
+      (assoc-in [:annotate :annotations] {:by-id {} :selected-id nil})))
+(m/=> replace-doc [:-> S/Session :string S/Session])

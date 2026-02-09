@@ -1,28 +1,57 @@
 (ns adnotare.model.schema
-  (:require [malli.util :as mu]))
+  (:require
+   [malli.util :as mu]))
 
 (def Color [:int {:min 0 :max 9}])
 (def Label [:string {:min 1}])
 (def Millis [:int {:min 0}])
 
-(def Prompt
+;; TODO: Improve validation:
+;; - start < end
+;; - style class is a list of names (identifiers)
+;; - validate that start/end < text length (on RichTextModel)
+(def StyledRichTextSpan
+  [:map
+   [:start [:int {:min 0}]]
+   [:end [:int {:min 0}]]
+   [:style-classes [:sequential Label]]])
+
+(def RichTextModel
+  [:map
+   [:text :string]
+   [:spans [:sequential StyledRichTextSpan]]])
+
+(def HasID [:map
+            [:id :uuid]])
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+;; State
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;
+
+(def NormalizedPrompt
   [:map
    [:text [:string {:min 1}]]
    [:color Color]])
 
-(def DenormPrompt
-  (mu/merge
-   Prompt
-   [:map
-    [:id :uuid]]))
+(def Prompt
+  (mu/merge NormalizedPrompt HasID))
 
-(def PromptPalette
+(def NormalizedPalette
   [:map
    [:label [:string {:min 1}]]
    [:prompts
     [:map
-     [:by-id [:map-of :uuid Prompt]]
+     [:by-id [:map-of :uuid NormalizedPrompt]]
      [:order [:sequential :uuid]]]]])
+
+(def Palette
+  (mu/merge
+   NormalizedPalette
+   [:map
+    [:id :uuid]
+    [:prompts [:sequential Prompt]]]))
 
 (def PromptRef
   [:map
@@ -35,60 +64,71 @@
    [:end [:int {:min 0}]]
    [:text :string]])
 
-(def Annotation
+(def NormalizedAnnotation
   [:map
    [:prompt-ref PromptRef]
    [:selection Selection]
    [:note :string]])
 
-(def Session
+(def Annotation
+  (mu/merge
+   NormalizedAnnotation
+   [:map
+    [:id :uuid]
+    [:prompt NormalizedPrompt]
+    [:selected? :boolean]]))
+
+(def Annotate
   [:map
    [:doc [:map [:text :string]]]
    [:annotations
     [:map
-     [:by-id [:map-of :uuid Annotation]]
+     [:by-id [:map-of :uuid NormalizedAnnotation]]
      [:selected-id [:maybe :uuid]]]]
-   [:active-palette-id :uuid]])
+   [:active-palette-id [:maybe :uuid]]])
+
+(def Palettes
+  [:map
+   [:by-id [:map-of :uuid NormalizedPalette]]
+   [:last-used-ms [:map-of :uuid Millis]]])
+
+(def PersistedSession
+  [:map
+   [:palettes Palettes]])
+
+(def Session
+  [:map
+   [:palettes Palettes]
+   [:annotate Annotate]])
 
 (def Route [:enum :annotate :manage-prompts])
 
 (def ToastType [:enum :success :warning :error :info])
 
-(def Toast
+(def NormalizedToast
   [:map
    [:text Label]
    [:type ToastType]
    [:duration-ms Millis]
    [:created-at-ms Millis]])
 
-(def DenormToast
-  (mu/merge
-   Toast
-   [:map
-    [:id :uuid]]))
+(def Toast
+  (mu/merge NormalizedToast HasID))
+
+(def App
+  [:map
+   [:initialized? :boolean]
+   [:route Route]
+   [:toasts
+    [:map
+     [:by-id [:map-of :uuid NormalizedToast]]]]])
 
 (def State
   [:map
-   [:prompt-palettes
-    [:map
-     [:by-id [:map-of :uuid PromptPalette]]]]
-   [:session Session]
-   [:ui
-    [:map
-     [:route Route]
-     [:toasts
-      [:map
-       [:by-id [:map-of :uuid Toast]]]]]]])
+   [:state/session Session]
+   [:state/app App]])
 
-(def StyleClass [:string {:min 1}])
-
-(def StyledRichTextSpan
+(def Context
   [:map
-   [:start [:int {:min 0}]]
-   [:end [:int {:min 0}]]
-   [:style-classes [:sequential StyleClass]]])
+   [:cljfx.context/m State]])
 
-(def RichTextModel
-  [:map
-   [:text :string]
-   [:spans [:sequential StyledRichTextSpan]]])

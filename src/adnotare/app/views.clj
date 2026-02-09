@@ -1,9 +1,9 @@
 (ns adnotare.app.views
-  (:require [adnotare.app.annotate.views :refer [annotate]]
+  (:require [adnotare.app.annotate.views :as annotate]
             [adnotare.app.subs :as subs]
             [adnotare.util.resources :as resources]))
 
-(defn- ->toast [{:keys [text type]}]
+(defn- toast-banner [{:keys [text type]}]
   {:fx/type :h-box
    :style-class ["toast" (name type)]
    :padding 10
@@ -12,8 +12,8 @@
                :text text
                :max-width 360}]})
 
-(defn- toasts [{:keys [fx/context]}]
-  (let [toasts (subs/sorted-toasts context)]
+(defn- toast-list [{:keys [fx/context]}]
+  (let [toasts (subs/toasts context)]
     {:fx/type :v-box
      :pick-on-bounds false
      :alignment :top-right
@@ -21,7 +21,7 @@
      :padding 14
      :fill-width false
      :visible (any? toasts)
-     :children (map ->toast toasts)}))
+     :children (map toast-banner toasts)}))
 
 (defn root [_]
   {:fx/type :stage
@@ -36,6 +36,6 @@
     :root
     {:fx/type :stack-pane
      :children
-     [{:fx/type annotate}
-      {:fx/type toasts
+     [{:fx/type annotate/root}
+      {:fx/type toast-list
        :stack-pane/alignment :top-right}]}}})

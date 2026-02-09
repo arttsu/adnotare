@@ -5,14 +5,14 @@
   (:import (javafx.geometry Pos)
            (javafx.scene.control OverrunStyle)))
 
-(defn- doc [{:keys [fx/context]}]
+(defn- document [{:keys [fx/context]}]
   (registered
    :annotate/doc
    {:fx/type code-area
     :code-area/model (subs/doc-rich-text context)
     :code-area/read-only? true}))
 
-(defn- ->prompt [{:keys [id text color]}]
+(defn- prompt-button [{:keys [id text color]}]
   {:fx/type :button
    :text text
    :tooltip {:fx/type :tooltip :text text}
@@ -24,8 +24,8 @@
    :pref-height 44
    :on-action {:event/type :annotate/add-annotation :prompt-id id}})
 
-(defn- prompts [{:keys [fx/context]}]
-  (let [prompts (subs/sorted-prompts context)]
+(defn- prompt-pane [{:keys [fx/context]}]
+  (let [prompts (subs/active-prompts context)]
     {:fx/type :scroll-pane
      :fit-to-width true
      :pannable true
@@ -38,9 +38,9 @@
                :vgap 10
                :padding 10
                :pref-tile-width 260
-               :children (map ->prompt prompts)}}))
+               :children (map prompt-button prompts)}}))
 
-(defn- ->annotation [{:keys [id selection prompt selected?]}]
+(defn- annotation-list-item [{:keys [id selection prompt selected?]}]
   {:fx/type :h-box
    :alignment :center-left
    :padding 10
@@ -64,7 +64,7 @@
                :on-mouse-clicked {:event/type :annotate/delete-annotation
                                   :id id}}]})
 
-(defn- annotations [{:keys [fx/context]}]
+(defn- annotation-list [{:keys [fx/context]}]
   {:fx/type :scroll-pane
    :fit-to-width true
    :hbar-policy :never
@@ -73,20 +73,21 @@
    :content {:fx/type :v-box
              :padding 8
              :spacing 8
-             :children (map ->annotation (subs/sorted-annotations context))}})
+             :children (map annotation-list-item (subs/annotations context))}})
 
-(defn- selected-annotation-note [{:keys [fx/context]}]
-  (let [note (subs/selected-annotation-note context)]
+(defn- annotation-note-input [{:keys [fx/context]}]
+  (let [disabled? (nil? (subs/selected-annotation context))
+        note (subs/selected-annotation-note context)]
     (registered
      :annotate/selected-annotation-note
      {:fx/type :text-area
       :text note
-      :disable (nil? note)
+      :disable disabled?
       :wrap-text true
       :pref-row-count 6
       :on-text-changed {:event/type :annotate/update-selected-annotation-note}})))
 
-(defn annotate [_]
+(defn root [_]
   {:fx/type :split-pane
    :divider-positions [0.6]
    :items
@@ -94,7 +95,7 @@
      :padding 10
      :spacing 10
      :children
-     [{:fx/type doc
+     [{:fx/type document
        :v-box/vgrow :always
        :max-height Double/MAX_VALUE}
       {:fx/type :h-box
@@ -113,8 +114,8 @@
      [{:fx/type :v-box
        :children
        [{:fx/type :label :text "Prompts"}
-        {:fx/type prompts}
+        {:fx/type prompt-pane}
         {:fx/type :label :text "Annotations"}
-        {:fx/type annotations}
+        {:fx/type annotation-list}
         {:fx/type :label :text "Annotation note"}
-        {:fx/type selected-annotation-note}]}]}]})
+        {:fx/type annotation-note-input}]}]}]})

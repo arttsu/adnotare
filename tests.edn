@@ -1,0 +1,6 @@
+#kaocha/v1
+{:plugins [:kaocha.plugin/hooks]
+ 
+ :kaocha.hooks/pre-run [adnotare.test.hooks/malli-dev-start!]
+ 
+ :kaocha.hooks/post-run [adnotare.test.hooks/malli-dev-stop!]}

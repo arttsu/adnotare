@@ -1,20 +1,22 @@
 (ns adnotare.app.handler
-  (:require [adnotare.app.annotate.events]
-            [adnotare.app.events]
-            [adnotare.app.node-registry :as node-registry]
-            [adnotare.fx.handler :refer [handle-event]]
-            [adnotare.model.constants :refer [default-state]]
-            [adnotare.util.uuid :refer [new-uuid]]
-            [cljfx.api :as fx])
-  (:import (javafx.animation PauseTransition)
-           (javafx.application Platform)
-           (javafx.event EventHandler)
-           (javafx.scene.control Alert Alert$AlertType ButtonType)
-           (javafx.scene.input Clipboard ClipboardContent)
-           (javafx.util Duration)))
+  (:require
+   [adnotare.app.annotate.events]
+   [adnotare.app.events]
+  [adnotare.app.node-registry :as node-registry]
+   [adnotare.fx.handler :refer [handle-event]]
+   [adnotare.model.persistence :as persistence]
+   [cljfx.api :as fx])
+  (:import
+   (javafx.animation PauseTransition)
+   (javafx.application Platform)
+   (javafx.event EventHandler)
+   (javafx.scene.control Alert Alert$AlertType ButtonType)
+   (javafx.scene.input Clipboard ClipboardContent)
+   (javafx.util Duration)
+   (java.util UUID)))
 
 (def *state
-  (atom (fx/create-context default-state)))
+  (atom (fx/create-context (persistence/load-state))))
 
 (defn- run-later! [f]
   (if (Platform/isFxApplicationThread)
@@ -38,8 +40,8 @@
             (when (= result ButtonType/OK)
               (dispatch yes-event))))
         :toast
-        (fn [{:keys [toast]} dispatch]
-          (let [id (new-uuid)]
+        (fn [toast dispatch]
+          (let [id (UUID/randomUUID)]
             (doto (PauseTransition. (Duration/millis (:duration-ms toast)))
               (.setOnFinished (reify EventHandler
                                 (handle [_ _]

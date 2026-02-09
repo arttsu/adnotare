@@ -1,9 +1,9 @@
 (ns adnotare.app.subs
-  (:require [adnotare.model.ui :as ui]
-            [cljfx.api :as fx]))
+  (:require [adnotare.model.app :as app]
+            [cljfx.api :as fx]
+            [malli.core :as m]
+            [adnotare.model.schema :as S]))
 
-(defn- toasts [context]
-  (fx/sub-val context ui/toasts))
-
-(defn sorted-toasts [context]
-  (sort-by :created-at-ms (fx/sub-ctx context toasts)))
+(defn toasts [context]
+  (fx/sub-val context (comp app/toasts :state/app)))
+(m/=> toasts [:-> S/Context [:sequential S/Toast]])

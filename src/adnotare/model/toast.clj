@@ -1,6 +1,7 @@
 (ns adnotare.model.toast
-  (:require [adnotare.model.schema :as S]
-            [malli.core :as m]))
+  (:require
+   [adnotare.model.schema :as S]
+   [malli.core :as m]))
 
 (defn ->toast
   ([text type]
@@ -11,5 +12,5 @@
     :duration-ms duration-ms
     :created-at-ms (System/currentTimeMillis)}))
 (m/=> ->toast [:function
-               [:-> S/Label S/ToastType S/Toast]
-               [:-> S/Label S/ToastType S/Millis S/Toast]])
+               [:-> S/Label S/ToastType S/NormalizedToast]
+               [:-> S/Label S/ToastType S/Millis S/NormalizedToast]])
