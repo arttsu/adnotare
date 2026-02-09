@@ -1,6 +1,6 @@
 (ns adnotare.app.node-registry
-  (:require [cljfx.api :as fx]
-            [adnotare.fx.extensions.code-area :refer [clear-selection! reveal-range! pane->selection]])
+  (:require [adnotare.fx.extensions.code-area :refer [clear-selection! reveal-range! pane->selection]]
+            [cljfx.api :as fx])
   (:import (javafx.scene Node)
            (org.fxmisc.flowless VirtualizedScrollPane)))
 

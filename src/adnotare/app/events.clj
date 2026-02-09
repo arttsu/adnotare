@@ -1,7 +1,7 @@
 (ns adnotare.app.events
   (:require [adnotare.fx.handler :refer [handle-event]]
-            [cljfx.api :as fx]
-            [adnotare.model.ui :as ui])
+            [adnotare.model.ui :as ui]
+            [cljfx.api :as fx])
   (:import (javafx.application Platform)))
 
 (defmethod handle-event :app/quit [_]

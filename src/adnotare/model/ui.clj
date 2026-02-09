@@ -1,6 +1,6 @@
 (ns adnotare.model.ui
-  (:require [malli.core :as m]
-            [adnotare.model.schema :as S]))
+  (:require [adnotare.model.schema :as S]
+            [malli.core :as m]))
 
 (defn ->denorm-toast [id toast]
   (assoc toast :id id))

@@ -1,9 +1,9 @@
 (ns adnotare.model.prompt-palette-test
-  (:require [clojure.test :refer [deftest testing is]]
-            [adnotare.test.schema :refer [is-valid]]
+  (:require [adnotare.model.prompt-palette :as palette]
+            [adnotare.model.schema :as S]
             [adnotare.test.constants :refer [default-prompt-palette]]
-            [adnotare.model.prompt-palette :as palette]
-            [adnotare.model.schema :as S]))
+            [adnotare.test.schema :refer [is-valid]]
+            [clojure.test :refer [deftest testing is]]))
 
 (deftest sorted-prompts
   (testing "returns ordered prompts"

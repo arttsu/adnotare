@@ -1,6 +1,6 @@
 (ns adnotare.model.toast
-  (:require [malli.core :as m]
-            [adnotare.model.schema :as S]))
+  (:require [adnotare.model.schema :as S]
+            [malli.core :as m]))
 
 (defn ->toast
   ([text type]

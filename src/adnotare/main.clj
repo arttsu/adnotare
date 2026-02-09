@@ -1,7 +1,7 @@
 (ns adnotare.main
-  (:require [cljfx.api :as fx]
-            [adnotare.app.handler :refer [*state event-handler]]
-            [adnotare.app.views :as views]))
+  (:require [adnotare.app.handler :refer [*state event-handler]]
+            [adnotare.app.views :as views]
+            [cljfx.api :as fx]))
 
 (defn- maybe-start-malli-dev! []
   (when (Boolean/parseBoolean (System/getProperty "adnotare.malli-dev" "false"))

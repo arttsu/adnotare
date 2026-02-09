@@ -1,8 +1,8 @@
 (ns adnotare.model.schema-test
-  (:require [clojure.test :refer [deftest testing]]
+  (:require [adnotare.model.schema :as S]
             [adnotare.test.constants :as constants]
             [adnotare.test.schema :refer [is-valid]]
-            [adnotare.model.schema :as S]))
+            [clojure.test :refer [deftest testing]]))
 
 (deftest default-state
   (testing "conforms to schema"

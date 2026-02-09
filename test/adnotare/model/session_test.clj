@@ -1,10 +1,10 @@
 (ns adnotare.model.session-test
-  (:require [clojure.test :refer [deftest testing is]]
-            [adnotare.test.schema :refer [is-valid]]
-            [adnotare.test.constants :refer [default-state]]
-            [adnotare.util.uuid :refer [uuid]]
+  (:require [adnotare.model.schema :as S]
             [adnotare.model.session :as session]
-            [adnotare.model.schema :as S]))
+            [adnotare.test.constants :refer [default-state]]
+            [adnotare.test.schema :refer [is-valid]]
+            [adnotare.util.uuid :refer [uuid]]
+            [clojure.test :refer [deftest testing is]]))
 
 (deftest doc-rich-text
   (testing "builds rich text model from doc and annotations"

@@ -1,17 +1,17 @@
 (ns adnotare.app.handler
-  (:require [cljfx.api :as fx]
-            [adnotare.fx.handler :refer [handle-event]]
+  (:require [adnotare.app.annotate.events]
             [adnotare.app.events]
-            [adnotare.app.annotate.events]
-            [adnotare.model.constants :refer [default-state]]
             [adnotare.app.node-registry :as node-registry]
-            [adnotare.util.uuid :refer [new-uuid]])
-  (:import (javafx.application Platform)
+            [adnotare.fx.handler :refer [handle-event]]
+            [adnotare.model.constants :refer [default-state]]
+            [adnotare.util.uuid :refer [new-uuid]]
+            [cljfx.api :as fx])
+  (:import (javafx.animation PauseTransition)
+           (javafx.application Platform)
+           (javafx.event EventHandler)
            (javafx.scene.control Alert Alert$AlertType ButtonType)
            (javafx.scene.input Clipboard ClipboardContent)
-           (javafx.animation PauseTransition)
-           (javafx.util Duration)
-           (javafx.event EventHandler)))
+           (javafx.util Duration)))
 
 (def *state
   (atom (fx/create-context default-state)))

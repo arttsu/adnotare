@@ -1,7 +1,7 @@
 (ns adnotare.test.schema
-  (:require [malli.core :as m]
-            [malli.error :as me]
-            [clojure.test :refer [is]]))
+  (:require [clojure.test :refer [is]]
+            [malli.core :as m]
+            [malli.error :as me]))
 
 (defn explain-str [schema x]
   (-> (m/explain schema x) (me/humanize) pr-str))

@@ -3,11 +3,11 @@
             [cljfx.lifecycle :as lifecycle]
             [cljfx.mutator :as mutator]
             [cljfx.prop :as prop])
-  (:import (org.fxmisc.richtext CodeArea)
-           (org.fxmisc.richtext.model StyleSpansBuilder)
-           (org.fxmisc.flowless VirtualizedScrollPane)
+  (:import (java.util ArrayList Collection Collections)
            (javafx.scene.control IndexRange)
-           (java.util ArrayList Collection Collections)))
+           (org.fxmisc.flowless VirtualizedScrollPane)
+           (org.fxmisc.richtext CodeArea)
+           (org.fxmisc.richtext.model StyleSpansBuilder)))
 
 (defn- ->style-collection ^Collection [active-classes]
   (if (empty? active-classes)

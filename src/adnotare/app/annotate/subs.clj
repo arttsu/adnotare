@@ -1,8 +1,8 @@
 (ns adnotare.app.annotate.subs
-  (:require [cljfx.api :as fx]
-            [adnotare.model.session :as session]
+  (:require [adnotare.model.prompt-palette :as palette]
             [adnotare.model.prompt-palettes :as palettes]
-            [adnotare.model.prompt-palette :as palette]))
+            [adnotare.model.session :as session]
+            [cljfx.api :as fx]))
 
 (defn- annotations [context]
   (fx/sub-val context session/annotations))

@@ -1,6 +1,6 @@
 (ns adnotare.model.session
-  (:require [adnotare.model.schema :as S]
-            [adnotare.model.prompt-palettes :as palettes]
+  (:require [adnotare.model.prompt-palettes :as palettes]
+            [adnotare.model.schema :as S]
             [adnotare.util.uuid :refer [new-uuid]]
             [clojure.string :refer [blank?]]
             [malli.core :as m]))

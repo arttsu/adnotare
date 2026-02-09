@@ -1,7 +1,7 @@
 (ns adnotare.app.annotate.views
-  (:require [adnotare.fx.extensions.code-area :refer [code-area]]
-            [adnotare.app.annotate.subs :as subs]
-            [adnotare.app.node-registry :refer [registered]])
+  (:require [adnotare.app.annotate.subs :as subs]
+            [adnotare.app.node-registry :refer [registered]]
+            [adnotare.fx.extensions.code-area :refer [code-area]])
   (:import (javafx.geometry Pos)
            (javafx.scene.control OverrunStyle)))
 

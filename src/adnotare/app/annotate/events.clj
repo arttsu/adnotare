@@ -1,9 +1,9 @@
 (ns adnotare.app.annotate.events
-  (:require [cljfx.api :as fx]
+  (:require [adnotare.app.annotate.subs :as subs]
             [adnotare.fx.handler :refer [handle-event]]
             [adnotare.model.session :as session]
-            [adnotare.app.annotate.subs :as subs]
-            [adnotare.model.toast :refer [->toast]]))
+            [adnotare.model.toast :refer [->toast]]
+            [cljfx.api :as fx]))
 
 (defmethod handle-event :annotate/select-annotation [{:keys [fx/context id]}]
   {:context (fx/swap-context context session/select-annotation id)

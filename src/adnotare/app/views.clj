@@ -1,7 +1,7 @@
 (ns adnotare.app.views
-  (:require [adnotare.util.resources :as resources]
-            [adnotare.app.annotate.views :refer [annotate]]
-            [adnotare.app.subs :as subs]))
+  (:require [adnotare.app.annotate.views :refer [annotate]]
+            [adnotare.app.subs :as subs]
+            [adnotare.util.resources :as resources]))
 
 (defn- ->toast [{:keys [text type]}]
   {:fx/type :h-box
