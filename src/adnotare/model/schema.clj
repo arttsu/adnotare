@@ -5,6 +5,7 @@
 (def Color [:int {:min 0 :max 9}])
 (def Label [:string {:min 1}])
 (def Millis [:int {:min 0}])
+(def ResultStatus [:enum :ok :error])
 
 ;; TODO: Improve validation:
 ;; - start < end
@@ -23,6 +24,16 @@
 
 (def HasID [:map
             [:id :uuid]])
+
+(def Result
+  [:map
+   [:status ResultStatus]
+   [:reason {:optional true} :string]])
+
+(def Option
+  [:map
+   [:id :uuid]
+   [:label Label]])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
@@ -132,3 +143,8 @@
   [:map
    [:cljfx.context/m State]])
 
+(def InitStateResult
+  (mu/merge
+   Result
+   [:map
+    [:state State]]))

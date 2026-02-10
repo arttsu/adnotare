@@ -27,11 +27,11 @@
      :annotations
      {:by-id
       {(uuid/named "ann-1") {:prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-2")}
-                       :selection {:start 13 :end 27 :text "This is a test"}
-                       :note ""}
+                             :selection {:start 13 :end 27 :text "This is a test"}
+                             :note ""}
        (uuid/named "ann-2") {:prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-4")}
-                       :selection {:start 31 :end 39 :text "Adnotare"}
-                       :note "Etymology"}}
+                             :selection {:start 31 :end 39 :text "Adnotare"}
+                             :note "Etymology"}}
       :selected-id (uuid/named "ann-2")}
      :active-palette-id (uuid/named "default-palette")}}
    :state/app

@@ -1,9 +1,11 @@
 (ns adnotare.app.annotate.views
-  (:require [adnotare.app.annotate.subs :as subs]
-            [adnotare.app.node-registry :refer [registered]]
-            [adnotare.fx.extensions.code-area :refer [code-area]])
-  (:import (javafx.geometry Pos)
-           (javafx.scene.control OverrunStyle)))
+  (:require
+   [adnotare.app.annotate.subs :as subs]
+   [adnotare.app.node-registry :refer [registered]]
+   [adnotare.fx.extensions.code-area :refer [code-area]])
+  (:import
+   (javafx.geometry Pos)
+   (javafx.scene.control OverrunStyle)))
 
 (defn- document [{:keys [fx/context]}]
   (registered
@@ -40,6 +42,23 @@
                :pref-tile-width 260
                :children (map prompt-button prompts)}}))
 
+(defn- palette-selector [{:keys [fx/context]}]
+  (let [palettes (subs/palette-options context)
+        active-id (subs/active-palette-id context)
+        ;; TODO: Is there a better approach?
+        active-palette (first (filter #(= (:id %) active-id) palettes))
+        cell-fn (fn [item]
+                  {:text (if item (:label item) "")})]
+    {:fx/type :combo-box
+     :items palettes
+     :value active-palette
+     :max-width Double/MAX_VALUE
+     :button-cell cell-fn
+     :cell-factory {:fx/cell-type :list-cell
+                    :describe (fn [item]
+                                {:text (:label item)})}
+     :on-action {:event/type :annotate/switch-palette}}))
+
 (defn- annotation-list-item [{:keys [id selection prompt selected?]}]
   {:fx/type :h-box
    :alignment :center-left
@@ -47,17 +66,32 @@
    :spacing 10
    :style-class (cond-> ["ann-list-item"]
                   selected? (conj "selected"))
+   :min-height 84
+   :pref-height 84
+   :max-height 84
    :on-mouse-clicked {:event/type :annotate/select-annotation :id id}
    :children [{:fx/type :region
                :min-width 12 :min-height 12
                :pref-width 12 :pref-height 12
                :max-width 12 :max-height 12
                :style-class [(str "color-" (:color prompt))]}
-              {:fx/type :label
-               :text (:text selection)
-               :max-width Double/MAX_VALUE
+              {:fx/type :v-box
+               :spacing 4
+               :alignment :center-left
                :h-box/hgrow :always
-               :text-overrun OverrunStyle/ELLIPSIS}
+               :max-width Double/MAX_VALUE
+               :children [{:fx/type :label
+                           :text (:text prompt)
+                           :style-class ["ann-list-item-prompt"]
+                           :wrap-text false
+                           :text-overrun OverrunStyle/ELLIPSIS}
+                          {:fx/type :label
+                           :text (:text selection)
+                           :max-width Double/MAX_VALUE
+                           :min-height 34
+                           :max-height 34
+                           :wrap-text true
+                           :text-overrun OverrunStyle/ELLIPSIS}]}
               {:fx/type :button
                :text "x"
                :style-class ["ann-list-item-delete"]
@@ -87,6 +121,15 @@
       :pref-row-count 6
       :on-text-changed {:event/type :annotate/update-selected-annotation-note}})))
 
+(defn- section [label content]
+  {:fx/type :v-box
+   :style-class ["section"]
+   :spacing 8
+   :children [{:fx/type :label
+               :text label
+               :style-class ["section-label"]}
+              content]})
+
 (defn root [_]
   {:fx/type :split-pane
    :divider-positions [0.6]
@@ -95,9 +138,11 @@
      :padding 10
      :spacing 10
      :children
-     [{:fx/type document
-       :v-box/vgrow :always
-       :max-height Double/MAX_VALUE}
+     [(assoc (section "Document"
+                      {:fx/type document
+                       :v-box/vgrow :always
+                       :max-height Double/MAX_VALUE})
+             :v-box/vgrow :always)
       {:fx/type :h-box
        :padding 10
        :spacing 10
@@ -109,13 +154,8 @@
                    :on-action {:event/type :annotate/copy-annotations}}]}]}
     {:fx/type :v-box
      :padding 10
-     :spacing 10
-     :children
-     [{:fx/type :v-box
-       :children
-       [{:fx/type :label :text "Prompts"}
-        {:fx/type prompt-pane}
-        {:fx/type :label :text "Annotations"}
-        {:fx/type annotation-list}
-        {:fx/type :label :text "Annotation note"}
-        {:fx/type annotation-note-input}]}]}]})
+     :spacing 12
+     :children [(section "Palette" {:fx/type palette-selector})
+                (section "Prompts" {:fx/type prompt-pane})
+                (section "Annotations" {:fx/type annotation-list})
+                (section "Annotation note" {:fx/type annotation-note-input})]}]})

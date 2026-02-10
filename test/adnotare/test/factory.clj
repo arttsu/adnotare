@@ -1,4 +1,4 @@
-(ns adnotare.test.factory 
+(ns adnotare.test.factory
   (:require
    [adnotare.util.uuid :as uuid]))
 

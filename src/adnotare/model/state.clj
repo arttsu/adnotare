@@ -1,6 +1,5 @@
 (ns adnotare.model.state
   (:require
-   [adnotare.model.session :as session]
    [adnotare.util.uuid :as uuid]))
 
 (def initial
@@ -34,4 +33,5 @@
 (def default
   (-> initial
       (assoc-in [:state/session :palettes :by-id (uuid/named "default-palette")] default-palette)
-      (update-in [:state/session] session/activate-last-used-palette)))
+      (assoc-in [:state/session :annotate :active-palette-id] (uuid/named "default-palette"))
+      (assoc-in [:state/app :initialized?] true)))

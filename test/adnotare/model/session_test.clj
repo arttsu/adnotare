@@ -29,6 +29,19 @@
   (testing "returns nil when no active palette"
     (is (nil? (session/active-palette (assoc-in default-session [:annotate :active-palette-id] nil))))))
 
+(deftest palette-options
+  (testing "returns palette options sorted case-insensitively by label"
+    (let [session-with-palettes (assoc default-session
+                                       :palettes
+                                       {:by-id {(uuid/named "palette-z") {:label "zeta" :prompts {:by-id {} :order []}}
+                                                (uuid/named "palette-a") {:label "Alpha" :prompts {:by-id {} :order []}}
+                                                (uuid/named "palette-b") {:label "beta" :prompts {:by-id {} :order []}}}
+                                        :last-used-ms {}})]
+      (is (= [{:id (uuid/named "palette-a") :label "Alpha"}
+              {:id (uuid/named "palette-b") :label "beta"}
+              {:id (uuid/named "palette-z") :label "zeta"}]
+             (session/palette-options session-with-palettes))))))
+
 (deftest annotations
   (testing "denormalizes annotations with prompt and selection state"
     (let [annotations (sort-by-start (session/annotations default-session))]
@@ -145,3 +158,11 @@ Etymology
       (is (= text (:text (session/doc-rich-text new-session))))
       (is (nil? (session/annotation-ids new-session)))
       (is (nil? (session/selected-annotation new-session))))))
+
+(deftest set-active-palette
+  (testing "sets active palette id and updates last-used timestamp"
+    (let [palette-id (uuid/named "default-palette")
+          now-ms 123456
+          updated-session (session/set-active-palette default-session palette-id now-ms)]
+      (is (= palette-id (get-in updated-session [:annotate :active-palette-id])))
+      (is (= now-ms (get-in updated-session [:palettes :last-used-ms palette-id]))))))

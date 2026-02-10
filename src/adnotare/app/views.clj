@@ -3,12 +3,29 @@
             [adnotare.app.subs :as subs]
             [adnotare.util.resources :as resources]))
 
+(def ^:private toast-icon-by-type
+  {:success "OK"
+   :warning "!"
+   :error "X"
+   :info "i"})
+
 (defn- toast-banner [{:keys [text type]}]
   {:fx/type :h-box
    :style-class ["toast" (name type)]
    :padding 10
    :alignment :center-left
-   :children [{:fx/type :label
+   :spacing 10
+   :children [{:fx/type :region
+               :style-class ["toast-accent" (name type)]
+               :pref-width 4
+               :min-width 4
+               :max-width 4}
+              {:fx/type :label
+               :style-class ["toast-icon" (name type)]
+               :text (get toast-icon-by-type type "i")
+               :min-width 18
+               :alignment :center}
+              {:fx/type :label
                :text text
                :max-width 360}]})
 
@@ -16,26 +33,41 @@
   (let [toasts (subs/toasts context)]
     {:fx/type :v-box
      :pick-on-bounds false
-     :alignment :top-right
-     :spacing 10
-     :padding 14
+     :alignment :bottom-center
+     :spacing 8
+     :padding 18
      :fill-width false
      :visible (any? toasts)
      :children (map toast-banner toasts)}))
 
-(defn root [_]
-  {:fx/type :stage
-   :showing true
-   :title "Adnotare"
-   :width 1600
-   :height 1200
-   :on-close-request {:event/type :app/quit}
-   :scene
-   {:fx/type :scene
-    :stylesheets [(resources/url "app.css")]
-    :root
-    {:fx/type :stack-pane
-     :children
-     [{:fx/type annotate/root}
-      {:fx/type toast-list
-       :stack-pane/alignment :top-right}]}}})
+(defn- loading-view [_]
+  {:fx/type :stack-pane
+   :children
+   [{:fx/type :v-box
+     :alignment :center
+     :spacing 12
+     :children [{:fx/type :progress-indicator
+                 :max-width 48
+                 :max-height 48}
+                {:fx/type :label
+                 :text "Loading session..."}]}]})
+
+(defn root [{:keys [fx/context]}]
+  (let [initialized? (subs/initialized? context)]
+    {:fx/type :stage
+     :showing true
+     :title "Adnotare"
+     :width 1600
+     :height 1200
+     :on-close-request {:event/type :app/quit}
+     :scene
+     {:fx/type :scene
+      :stylesheets [(resources/url "app.css")]
+      :root
+      {:fx/type :stack-pane
+       :children
+       [(if initialized?
+          {:fx/type annotate/root}
+          {:fx/type loading-view})
+        {:fx/type toast-list
+         :stack-pane/alignment :bottom-center}]}}}))

@@ -50,6 +50,11 @@
     -fx-font-size: 13px;
 }
 
+.ann-list-item-prompt {
+    -fx-font-size: 11px;
+    -fx-text-fill: rgba(0,0,0,0.55);
+}
+
 .ann-list-item-delete {
     -fx-background-color: transparent;
     -fx-background-radius: 8;
@@ -68,22 +73,93 @@
     -fx-background-color: rgba(0,0,0,0.10);
 }
 
+.section {
+    -fx-background-color: rgba(255, 255, 255, 0.88);
+    -fx-border-color: rgba(0, 0, 0, 0.10);
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-padding: 10;
+}
+
+.section-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(0, 0, 0, 0.58);
+}
+
 .toast {
-    -fx-border-color: rgba(0, 0, 0, 0.12);
-    -fx-border-radius: 10;
-    -fx-background-radius: 10;
-    -fx-padding: 10 12;
+    -fx-background-color: rgba(255, 255, 255, 0.96);
+    -fx-border-color: rgba(0, 0, 0, 0.16);
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10 14;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 18, 0.22, 0, 4);
 }
 
 .toast.success {
-    -fx-background-color: rgba(60, 220, 140, 0.55);
+    -fx-background-color: rgba(232, 251, 240, 0.98);
+    -fx-border-color: rgba(25, 140, 77, 0.45);
 }
 
 .toast.warning {
-    -fx-background-color: rgba(255, 200, 80, 0.55);
+    -fx-background-color: rgba(255, 247, 224, 0.98);
+    -fx-border-color: rgba(181, 122, 0, 0.45);
+}
+
+.toast.error {
+    -fx-background-color: rgba(255, 236, 236, 0.98);
+    -fx-border-color: rgba(183, 49, 49, 0.48);
+}
+
+.toast.info {
+    -fx-background-color: rgba(234, 245, 255, 0.98);
+    -fx-border-color: rgba(37, 113, 184, 0.50);
+}
+
+.toast-accent {
+    -fx-background-radius: 4;
+}
+
+.toast-accent.success {
+    -fx-background-color: rgba(25, 140, 77, 0.95);
+}
+
+.toast-accent.warning {
+    -fx-background-color: rgba(181, 122, 0, 0.95);
+}
+
+.toast-accent.error {
+    -fx-background-color: rgba(183, 49, 49, 0.95);
+}
+
+.toast-accent.info {
+    -fx-background-color: rgba(37, 113, 184, 0.95);
+}
+
+.toast-icon {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-opacity: 0.95;
+}
+
+.toast-icon.success {
+    -fx-text-fill: rgba(25, 140, 77, 1);
+}
+
+.toast-icon.warning {
+    -fx-text-fill: rgba(181, 122, 0, 1);
+}
+
+.toast-icon.error {
+    -fx-text-fill: rgba(183, 49, 49, 1);
+}
+
+.toast-icon.info {
+    -fx-text-fill: rgba(37, 113, 184, 1);
 }
 
 .toast .label {
     -fx-font-size: 13px;
     -fx-font-weight: 600;
+    -fx-text-fill: rgba(18, 24, 33, 0.95);
 }

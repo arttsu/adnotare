@@ -18,4 +18,6 @@
 
 (defn -main [& _args]
   (maybe-start-malli-dev!)
-  (fx/mount-renderer *state renderer))
+  (fx/mount-renderer *state renderer)
+  (fx/on-fx-thread
+   (event-handler {:event/type :app/start})))

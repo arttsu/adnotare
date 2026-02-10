@@ -13,6 +13,14 @@
   (some-> (fx/sub-val context (comp session/active-palette :state/session)) :prompts))
 (m/=> active-prompts [:-> S/Context [:maybe [:sequential S/Prompt]]])
 
+(defn palette-options [context]
+  (fx/sub-val context (comp session/palette-options :state/session)))
+(m/=> palette-options [:-> S/Context [:sequential S/Option]])
+
+(defn active-palette-id [context]
+  (some-> (fx/sub-val context (comp session/active-palette :state/session)) :id))
+(m/=> active-palette-id [:-> S/Context [:maybe :uuid]])
+
 (defn annotations [context]
   (fx/sub-val context (comp session/annotations :state/session)))
 (m/=> annotations [:-> S/Context [:sequential S/Annotation]])

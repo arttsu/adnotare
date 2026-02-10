@@ -1,7 +1,7 @@
 (ns adnotare.model.session
   (:require
    [adnotare.model.schema :as S]
-   [clojure.string :refer [blank?]]
+   [clojure.string :refer [blank? lower-case]]
    [malli.core :as m])
   (:import
    (java.util UUID)))
@@ -60,6 +60,14 @@
              :id id
              :prompts prompts))))
 (m/=> active-palette [:-> S/Session [:maybe S/Palette]])
+
+(defn palette-options [session]
+  (->> (get-in session [:palettes :by-id])
+       (mapv (fn [[id palette]]
+               {:id id
+                :label (:label palette)}))
+       (sort-by (comp lower-case :label))))
+(m/=> palette-options [:-> S/Session [:sequential S/Option]])
 
 (defn annotation-ids [session]
   (keys (annotation-id-map session)))
@@ -161,3 +169,14 @@
       (assoc-in [:annotate :doc :text] text)
       (assoc-in [:annotate :annotations] {:by-id {} :selected-id nil})))
 (m/=> replace-doc [:-> S/Session :string S/Session])
+
+(defn set-active-palette
+  ([session palette-id]
+   (set-active-palette session palette-id (System/currentTimeMillis)))
+  ([session palette-id now-ms]
+   (-> session
+       (assoc-in [:annotate :active-palette-id] palette-id)
+       (assoc-in [:palettes :last-used-ms palette-id] now-ms))))
+(m/=> set-active-palette [:function
+                          [:-> S/Session :uuid S/Session]
+                          [:-> S/Session :uuid S/Millis S/Session]])

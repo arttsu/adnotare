@@ -2,21 +2,22 @@
   (:require
    [adnotare.app.annotate.events]
    [adnotare.app.events]
-  [adnotare.app.node-registry :as node-registry]
+   [adnotare.app.node-registry :as node-registry]
    [adnotare.fx.handler :refer [handle-event]]
    [adnotare.model.persistence :as persistence]
+   [adnotare.model.state :as state]
    [cljfx.api :as fx])
   (:import
+   (java.util UUID)
    (javafx.animation PauseTransition)
    (javafx.application Platform)
    (javafx.event EventHandler)
    (javafx.scene.control Alert Alert$AlertType ButtonType)
    (javafx.scene.input Clipboard ClipboardContent)
-   (javafx.util Duration)
-   (java.util UUID)))
+   (javafx.util Duration)))
 
 (def *state
-  (atom (fx/create-context (persistence/load-state))))
+  (atom (fx/create-context state/initial)))
 
 (defn- run-later! [f]
   (if (Platform/isFxApplicationThread)
@@ -51,6 +52,14 @@
             (dispatch {:event/type :app/add-toast
                        :id id
                        :toast toast})))
+        ;; TODO: DRY ':toast'?
+        :dispatch-later
+        (fn [{:keys [ms event]} dispatch]
+          (doto (PauseTransition. (Duration/millis ms))
+            (.setOnFinished (reify EventHandler
+                              (handle [_ _]
+                                (dispatch event))))
+            (.play)))
         :consume-event
         (fn [event _dispatch]
           (.consume event))
@@ -63,6 +72,13 @@
           (let [clipboard (Clipboard/getSystemClipboard)
                 text (when (.hasString clipboard) (.getString clipboard))]
             (dispatch (assoc on-clipboard :text text))))
+        :init-session
+        (fn [{:keys [on-init]} dispatch]
+          (let [result (persistence/init-state)]
+            (dispatch (merge on-init result))))
+        :persist-session
+        (fn [{:keys [session]} _dispatch]
+          (persistence/persist-session! session))
         :copy-to-clipboard
         (fn [{:keys [text]} _dispatch]
           (let [clipboard (Clipboard/getSystemClipboard)
