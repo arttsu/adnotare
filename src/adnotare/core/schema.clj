@@ -106,6 +106,11 @@
    [:palette/label Label]
    [:palette/prompts [:sequential DerivedPrompt]]])
 
+(def PaletteOption
+  [:map
+   [:option/id :uuid]
+   [:option/label Label]])
+
 (def DerivedAnnotation
   (mu/merge
    Annotation

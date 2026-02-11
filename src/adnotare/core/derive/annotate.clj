@@ -1,7 +1,9 @@
 (ns adnotare.core.derive.annotate
   (:require
+   [adnotare.core.schema :as S]
    [adnotare.core.state.ui.annotate :as state.ui.annotate]
-   [clojure.string :as string]))
+   [clojure.string :as string]
+   [malli.core :as m]))
 
 (defn- prompt-by-ref [state prompt-ref]
   (let [palette-id (:prompt-ref/palette-id prompt-ref)
@@ -14,6 +16,7 @@
            :annotation/id annotation-id
            :annotation/prompt (prompt-by-ref state (:annotation/prompt-ref normalized))
            :annotation/selected? (= annotation-id (state.ui.annotate/selected-annotation-id state)))))
+(m/=> annotation [:=> [:cat S/State :uuid] [:maybe S/DerivedAnnotation]])
 
 (defn annotations [state]
   (->> (keys (get-in state [:state/document :document/annotations :by-id]))
@@ -21,10 +24,12 @@
        (remove nil?)
        (sort-by (comp :selection/start :annotation/selection))
        vec))
+(m/=> annotations [:=> [:cat S/State] [:sequential S/DerivedAnnotation]])
 
 (defn selected-annotation [state]
   (some->> (state.ui.annotate/selected-annotation-id state)
            (annotation state)))
+(m/=> selected-annotation [:=> [:cat S/State] [:maybe S/DerivedAnnotation]])
 
 (defn doc-rich-text [state]
   {:rich-text/text (get-in state [:state/document :document/text])
@@ -36,6 +41,7 @@
                                :span/style-classes (cond-> base-style
                                                      selected? (conj "selected"))}))
                           (annotations state))})
+(m/=> doc-rich-text [:=> [:cat S/State] S/RichTextModel])
 
 (defn annotations-str [state]
   (->> (annotations state)
@@ -52,3 +58,4 @@
                                                 "</note>\n")
                 true (str "</annotation>\n"))))
        (string/join "\n")))
+(m/=> annotations-str [:=> [:cat S/State] :string])
