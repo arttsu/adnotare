@@ -118,3 +118,25 @@
   [:map
    [:palettes/version [:= 1]]
    [:palettes/data Palettes]])
+
+(def DerivedToast
+  (mu/merge NormalizedToast [:map [:toast/id :uuid]]))
+
+(def Event
+  [:map
+   [:event/type keyword?]])
+
+(def EffectMap
+  [:map-of keyword? :any])
+
+(def EventResult
+  [:and
+   EffectMap
+   [:map
+    [:state State]]])
+
+(def UISelection
+  [:map
+   [:start [:int {:min 0}]]
+   [:end [:int {:min 0}]]
+   [:text :string]])

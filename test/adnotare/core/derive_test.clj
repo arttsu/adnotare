@@ -2,7 +2,7 @@
   (:require
    [adnotare.core.derive.annotate :as derive.annotate]
    [adnotare.core.derive.palettes :as derive.palettes]
-   [adnotare.core.state.ui.manage-prompts :as ui.manage-prompts]
+   [adnotare.core.state.ui.manage-prompts :as state.ui.manage-prompts]
    [adnotare.test.constants :refer [default-state]]
    [adnotare.util.uuid :as uuid]
    [clojure.test :refer [deftest is testing]]))
@@ -21,8 +21,8 @@
              (derive.palettes/palette-options state)))))
   (testing "manage-prompts selected prompt resolves from derived palette"
     (let [state (-> default-state
-                    (ui.manage-prompts/select-palette (uuid/named "default-palette"))
-                    (ui.manage-prompts/select-prompt (uuid/named "default-prompt-4")))]
+                    (state.ui.manage-prompts/select-palette (uuid/named "default-palette"))
+                    (state.ui.manage-prompts/select-prompt (uuid/named "default-prompt-4")))]
       (is (= "Give more details"
              (some-> (derive.palettes/manage-prompts-selected-prompt state) :prompt/text))))))
 

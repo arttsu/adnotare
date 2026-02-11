@@ -1,6 +1,7 @@
 (ns adnotare.app.events
   (:require
    [adnotare.core.event :as core.event]
+   [adnotare.core.event.app]
    [adnotare.fx.handler :refer [handle-event]]
    [cljfx.api :as fx])
   (:import

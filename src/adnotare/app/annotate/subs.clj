@@ -2,7 +2,7 @@
   (:require
    [adnotare.core.derive.annotate :as derive.annotate]
    [adnotare.core.derive.palettes :as derive.palettes]
-   [adnotare.core.state.ui.annotate :as ui.annotate]
+   [adnotare.core.state.ui.annotate :as state.ui.annotate]
    [cljfx.api :as fx]))
 
 (defn doc-rich-text [context]
@@ -21,7 +21,7 @@
   (fx/sub-val context derive.palettes/palette-options))
 
 (defn active-palette-id [context]
-  (fx/sub-val context ui.annotate/active-palette-id))
+  (fx/sub-val context state.ui.annotate/active-palette-id))
 
 (defn annotations [context]
   (fx/sub-val context derive.annotate/annotations))

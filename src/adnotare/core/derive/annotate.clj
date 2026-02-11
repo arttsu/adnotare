@@ -1,6 +1,6 @@
 (ns adnotare.core.derive.annotate
   (:require
-   [adnotare.core.state.ui.annotate :as ui.annotate]
+   [adnotare.core.state.ui.annotate :as state.ui.annotate]
    [clojure.string :as string]))
 
 (defn- prompt-by-ref [state prompt-ref]
@@ -13,7 +13,7 @@
     (assoc normalized
            :annotation/id annotation-id
            :annotation/prompt (prompt-by-ref state (:annotation/prompt-ref normalized))
-           :annotation/selected? (= annotation-id (ui.annotate/selected-annotation-id state)))))
+           :annotation/selected? (= annotation-id (state.ui.annotate/selected-annotation-id state)))))
 
 (defn annotations [state]
   (->> (keys (get-in state [:state/document :document/annotations :by-id]))
@@ -23,7 +23,7 @@
        vec))
 
 (defn selected-annotation [state]
-  (some->> (ui.annotate/selected-annotation-id state)
+  (some->> (state.ui.annotate/selected-annotation-id state)
            (annotation state)))
 
 (defn doc-rich-text [state]

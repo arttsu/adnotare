@@ -1,8 +1,10 @@
 (ns adnotare.core.state
   (:require
+   [adnotare.core.schema :as S]
    [adnotare.core.state.palettes :as state.palettes]
    [adnotare.core.state.ui :as state.ui]
-   [adnotare.core.state.ui.annotate :as ui.annotate]
+   [adnotare.core.state.ui.annotate :as state.ui.annotate]
+   [malli.core :as m]
    [adnotare.util.uuid :as uuid]))
 
 (def default-palette
@@ -43,8 +45,6 @@
         active-id (or (state.palettes/most-recent-id state)
                       (state.palettes/first-palette-id state))]
     (-> state
-        (ui.annotate/set-active-palette active-id)
+        (state.ui.annotate/set-active-palette active-id)
         (state.ui/set-initialized true))))
-
-(def default
-  (with-palettes initial default-palettes))
+(m/=> with-palettes [:=> [:cat S/State S/Palettes] S/State])

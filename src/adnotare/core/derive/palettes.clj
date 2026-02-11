@@ -1,7 +1,7 @@
 (ns adnotare.core.derive.palettes
   (:require
-   [adnotare.core.state.ui.annotate :as ui.annotate]
-   [adnotare.core.state.ui.manage-prompts :as ui.manage-prompts]
+   [adnotare.core.state.ui.annotate :as state.ui.annotate]
+   [adnotare.core.state.ui.manage-prompts :as state.ui.manage-prompts]
    [clojure.string :as string]))
 
 (defn- prompt [state palette-id prompt-id]
@@ -17,7 +17,7 @@
        :palette/prompts prompts})))
 
 (defn active-palette [state]
-  (some->> (ui.annotate/active-palette-id state)
+  (some->> (state.ui.annotate/active-palette-id state)
            (palette state)))
 
 (defn active-prompts [state]
@@ -32,14 +32,14 @@
        vec))
 
 (defn manage-prompts-selected-palette-id [state]
-  (ui.manage-prompts/selected-palette-id state))
+  (state.ui.manage-prompts/selected-palette-id state))
 
 (defn manage-prompts-palette [state]
   (some->> (manage-prompts-selected-palette-id state)
            (palette state)))
 
 (defn manage-prompts-selected-prompt-id [state]
-  (ui.manage-prompts/selected-prompt-id state))
+  (state.ui.manage-prompts/selected-prompt-id state))
 
 (defn manage-prompts-selected-prompt [state]
   (let [prompt-id (manage-prompts-selected-prompt-id state)]

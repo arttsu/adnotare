@@ -1,6 +1,7 @@
 (ns adnotare.app.manage-prompts.events
   (:require
    [adnotare.core.event :as core.event]
+   [adnotare.core.event.manage-prompts]
    [adnotare.fx.handler :refer [handle-event]]
    [cljfx.api :as fx]))
 
