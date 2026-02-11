@@ -13,12 +13,12 @@
                :style-class ["section-label"]}
               content]})
 
-(defn- palette-item [{:keys [id label active?]}]
+(defn- palette-item [{:keys [palette-id label active?]}]
   (cond-> {:fx/type :h-box
            :alignment :center-left
            :padding 8
            :on-mouse-clicked {:event/type :manage-prompts/select-palette
-                              :palette-id id}
+                              :palette-id palette-id}
            :children [(cond-> {:fx/type :label
                                :text label}
                         active? (assoc :style "-fx-font-weight: bold;"))]}
@@ -33,14 +33,14 @@
      :vbar-policy :as-needed
      :content {:fx/type :v-box
                :spacing 6
-               :children (map (fn [{:keys [id] :as palette}]
+               :children (map (fn [{:option/keys [id label]}]
                                 {:fx/type palette-item
-                                 :id id
-                                 :label (:label palette)
+                                 :palette-id id
+                                 :label label
                                  :active? (= id active-id)})
                               palettes)}}))
 
-(defn- prompt-item [{:keys [id text color selected?]}]
+(defn- prompt-item [{:prompt/keys [id text color] :keys [selected?]}]
   (cond-> {:fx/type :h-box
            :alignment :center-left
            :spacing 8
@@ -72,16 +72,16 @@
      :vbar-policy :as-needed
      :content {:fx/type :v-box
                :spacing 6
-               :children (map (fn [{:keys [id] :as prompt}]
+               :children (map (fn [{:prompt/keys [id] :as prompt}]
                                 {:fx/type prompt-item
-                                 :id id
-                                 :text (:text prompt)
-                                 :color (:color prompt)
+                                 :prompt/id id
+                                 :prompt/text (:prompt/text prompt)
+                                 :prompt/color (:prompt/color prompt)
                                  :selected? (= id selected-id)})
                               prompts)}}))
 
 (defn- prompt-details [{:keys [fx/context]}]
-  (if-let [{:keys [text color]} (subs/selected-prompt context)]
+  (if-let [{:prompt/keys [text color]} (subs/selected-prompt context)]
     {:fx/type :v-box
      :spacing 10
      :children [{:fx/type :h-box

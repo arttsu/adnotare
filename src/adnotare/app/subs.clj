@@ -1,17 +1,13 @@
 (ns adnotare.app.subs
-  (:require [adnotare.model.app :as app]
-            [adnotare.model.schema :as S]
-            [cljfx.api :as fx]
-            [malli.core :as m]))
+  (:require
+   [adnotare.core.state.ui :as ui]
+   [cljfx.api :as fx]))
 
 (defn toasts [context]
-  (fx/sub-val context (comp app/toasts :state/app)))
-(m/=> toasts [:-> S/Context [:sequential S/Toast]])
+  (fx/sub-val context ui/toasts))
 
 (defn initialized? [context]
-  (fx/sub-val context (comp :initialized? :state/app)))
-(m/=> initialized? [:-> S/Context :boolean])
+  (fx/sub-val context ui/initialized?))
 
 (defn route [context]
-  (fx/sub-val context (comp :route :state/app)))
-(m/=> route [:-> S/Context S/Route])
+  (fx/sub-val context ui/route))

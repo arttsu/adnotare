@@ -1,34 +1,26 @@
 (ns adnotare.app.manage-prompts.subs
   (:require
-   [adnotare.model.schema :as S]
-   [adnotare.model.session :as session]
-   [cljfx.api :as fx]
-   [malli.core :as m]))
+   [adnotare.core.derive.palettes :as derive.palettes]
+   [adnotare.core.state.ui.manage-prompts :as ui.manage-prompts]
+   [cljfx.api :as fx]))
 
 (defn palette-options [context]
-  (fx/sub-val context (comp session/palette-options :state/session)))
-(m/=> palette-options [:-> S/Context [:sequential S/Option]])
+  (fx/sub-val context derive.palettes/palette-options))
 
 (defn selected-palette-id [context]
-  (fx/sub-val context (comp session/manage-prompts-selected-palette-id :state/session)))
-(m/=> selected-palette-id [:-> S/Context [:maybe :uuid]])
+  (fx/sub-val context ui.manage-prompts/selected-palette-id))
 
 (defn palette-id [context]
   (fx/sub-ctx context selected-palette-id))
-(m/=> palette-id [:-> S/Context [:maybe :uuid]])
 
 (defn palette [context]
-  (fx/sub-val context (comp session/manage-prompts-palette :state/session)))
-(m/=> palette [:-> S/Context [:maybe S/Palette]])
+  (fx/sub-val context derive.palettes/manage-prompts-palette))
 
 (defn active-prompts [context]
-  (some-> (fx/sub-ctx context palette) :prompts))
-(m/=> active-prompts [:-> S/Context [:maybe [:sequential S/Prompt]]])
+  (some-> (fx/sub-ctx context palette) :palette/prompts))
 
 (defn selected-prompt-id [context]
-  (fx/sub-val context (comp session/manage-prompts-selected-prompt-id :state/session)))
-(m/=> selected-prompt-id [:-> S/Context [:maybe :uuid]])
+  (fx/sub-val context ui.manage-prompts/selected-prompt-id))
 
 (defn selected-prompt [context]
-  (fx/sub-val context (comp session/manage-prompts-selected-prompt :state/session)))
-(m/=> selected-prompt [:-> S/Context [:maybe S/Prompt]])
+  (fx/sub-val context derive.palettes/manage-prompts-selected-prompt))

@@ -2,14 +2,14 @@
   (:require [adnotare.util.uuid :as uuid]))
 
 (def default-prompt-palette
-  {:label "Default"
-   :prompts
+  {:palette/label "Default"
+   :palette/prompts
    {:by-id
-    {(uuid/named "default-prompt-1") {:text "Generic" :color 0}
-     (uuid/named "default-prompt-2") {:text "Explain this" :color 5}
-     (uuid/named "default-prompt-3") {:text "Are you sure about this?" :color 8}
-     (uuid/named "default-prompt-4") {:text "Give more details" :color 3}
-     (uuid/named "default-prompt-5") {:text "User answer" :color 2}}
+    {(uuid/named "default-prompt-1") {:prompt/text "Generic" :prompt/color 0}
+     (uuid/named "default-prompt-2") {:prompt/text "Explain this" :prompt/color 5}
+     (uuid/named "default-prompt-3") {:prompt/text "Are you sure about this?" :prompt/color 8}
+     (uuid/named "default-prompt-4") {:prompt/text "Give more details" :prompt/color 3}
+     (uuid/named "default-prompt-5") {:prompt/text "User answer" :prompt/color 2}}
     :order [(uuid/named "default-prompt-1")
             (uuid/named "default-prompt-3")
             (uuid/named "default-prompt-2")
@@ -17,29 +17,28 @@
             (uuid/named "default-prompt-5")]}})
 
 (def default-state
-  {:state/session
-   {:palettes
+  {:state/document
+   {:document/text "Hello World! This is a test of Adnotare."
+    :document/annotations
     {:by-id
-     {(uuid/named "default-palette") default-prompt-palette}
-     :last-used-ms {}}
-    :annotate
-    {:doc {:text "Hello World! This is a test of Adnotare."}
-     :annotations
-     {:by-id
-      {(uuid/named "ann-1") {:prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-2")}
-                             :selection {:start 13 :end 27 :text "This is a test"}
-                             :note ""}
-       (uuid/named "ann-2") {:prompt-ref {:palette-id (uuid/named "default-palette") :prompt-id (uuid/named "default-prompt-4")}
-                             :selection {:start 31 :end 39 :text "Adnotare"}
-                             :note "Etymology"}}
-      :selected-id (uuid/named "ann-2")}
-     :active-palette-id (uuid/named "default-palette")}
-    :manage-prompts
-    {:selected-palette-id nil
-     :selected-prompt-id nil}}
-   :state/app
-   {:initialized? true
-    :route :annotate
-    :toasts {:by-id {}}}})
-
-(def default-session (:state/session default-state))
+     {(uuid/named "ann-1") {:annotation/prompt-ref {:prompt-ref/palette-id (uuid/named "default-palette")
+                                                    :prompt-ref/prompt-id (uuid/named "default-prompt-2")}
+                            :annotation/selection {:selection/start 13 :selection/end 27 :selection/text "This is a test"}
+                            :annotation/note ""}
+      (uuid/named "ann-2") {:annotation/prompt-ref {:prompt-ref/palette-id (uuid/named "default-palette")
+                                                    :prompt-ref/prompt-id (uuid/named "default-prompt-4")}
+                            :annotation/selection {:selection/start 31 :selection/end 39 :selection/text "Adnotare"}
+                            :annotation/note "Etymology"}}
+     :order [(uuid/named "ann-1") (uuid/named "ann-2")]}}
+   :state/palettes
+   {:palettes/by-id {(uuid/named "default-palette") default-prompt-palette}
+    :palettes/order [(uuid/named "default-palette")]
+    :palettes/last-used-ms {}}
+   :state/ui
+   {:ui/initialized? true
+    :ui/route :annotate
+    :ui/toasts {:by-id {}}
+    :ui/annotate {:annotate/active-palette-id (uuid/named "default-palette")
+                  :annotate/selected-annotation-id (uuid/named "ann-2")}
+    :ui/manage-prompts {:manage-prompts/selected-palette-id nil
+                        :manage-prompts/selected-prompt-id nil}}})

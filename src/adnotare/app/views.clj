@@ -10,7 +10,7 @@
    :error "X"
    :info "i"})
 
-(defn- toast-banner [{:keys [text type]}]
+(defn- toast-banner [{:toast/keys [text type]}]
   {:fx/type :h-box
    :style-class ["toast" (name type)]
    :padding 10
@@ -51,7 +51,7 @@
                  :max-width 48
                  :max-height 48}
                 {:fx/type :label
-                 :text "Loading session..."}]}]})
+                 :text "Loading palettes..."}]}]})
 
 (defn root [{:keys [fx/context]}]
   (let [initialized? (subs/initialized? context)

@@ -1,12 +1,15 @@
 (ns adnotare.app.annotate.events
-  (:require [adnotare.app.annotate.subs :as subs]
-            [adnotare.fx.handler :refer [handle-event]]
-            [adnotare.model.session :as session]
-            [adnotare.model.toast :refer [->toast]]
-            [cljfx.api :as fx]))
+  (:require
+   [adnotare.app.annotate.subs :as subs]
+   [adnotare.core.state.document :as state.document]
+   [adnotare.core.state.palettes :as state.palettes]
+   [adnotare.core.state.ui :as ui]
+   [adnotare.core.state.ui.annotate :as ui.annotate]
+   [adnotare.fx.handler :refer [handle-event]]
+   [cljfx.api :as fx]))
 
 (defmethod handle-event :annotate/select-annotation [{:keys [fx/context id]}]
-  {:context (fx/swap-context context update-in [:state/session] session/select-annotation id)
+  {:context (fx/swap-context context ui.annotate/select-annotation id)
    :dispatch {:event/type :annotate/reveal-document-selection}
    :dispatch-later {:ms 50
                     :event {:event/type :annotate/focus-note}}})
@@ -21,13 +24,22 @@
                                   :prompt-id prompt-id}}})
 
 (defmethod handle-event :annotate/delete-annotation [{:keys [fx/context id fx/event]}]
-  {:context (fx/swap-context context update-in [:state/session] session/delete-annotation id)
+  {:context (fx/swap-context context state.document/delete-annotation id)
    :consume-event event})
 
 (defmethod handle-event :annotate/add-annotation-on-selection [{:keys [fx/context prompt-id selection]}]
   (if (.isEmpty (:text selection))
-    {:toast (->toast "Please select some text first" :warning)}
-    {:context (fx/swap-context context update-in [:state/session] session/add-annotation prompt-id selection)
+    {:toast (ui/->toast "Please select some text first" :warning)}
+    {:context (fx/swap-context
+               context
+               (fn [state]
+                 (state.document/add-annotation
+                  state
+                  {:prompt-ref/palette-id (ui.annotate/active-palette-id state)
+                   :prompt-ref/prompt-id prompt-id}
+                  {:selection/start (:start selection)
+                   :selection/end (:end selection)
+                   :selection/text (:text selection)})))
      :dispatch {:event/type :annotate/clear-document-selection}
      :dispatch-later {:ms 50
                       :event {:event/type :annotate/focus-note}}}))
@@ -42,8 +54,8 @@
   {:get-clipboard {:on-clipboard {:event/type :annotate/paste-doc-on-clipboard}}})
 
 (defmethod handle-event :annotate/paste-doc-on-clipboard [{:keys [fx/context text]}]
-  (if (.isEmpty text)
-    {:toast (->toast "Clipboard is empty" :warning)}
+  (if (or (nil? text) (.isEmpty text))
+    {:toast (ui/->toast "Clipboard is empty" :warning)}
     (let [replace-doc-event {:event/type :annotate/replace-doc :text text}]
       (if (subs/any-annotations? context)
         {:confirm {:title "Replace document text?"
@@ -53,21 +65,22 @@
         {:dispatch replace-doc-event}))))
 
 (defmethod handle-event :annotate/replace-doc [{:keys [fx/context text]}]
-  {:context (fx/swap-context context update-in [:state/session] session/replace-doc text)})
+  {:context (fx/swap-context context state.document/replace-text text)})
 
 (defmethod handle-event :annotate/update-selected-annotation-note [{:keys [fx/context fx/event]}]
-  {:context (fx/swap-context context update-in [:state/session] session/update-selected-annotation-note event)})
+  {:context (fx/swap-context context state.document/update-selected-annotation-note event)})
 
 (defmethod handle-event :annotate/switch-palette [{:keys [fx/context fx/event]}]
-  (let [palette-id (-> event .getSource .getValue :id)]
+  (let [palette-id (-> event .getSource .getValue :option/id)]
     (when palette-id
-      (let [current-session (fx/sub-val context :state/session)
-            new-session (session/set-active-palette current-session palette-id)]
-        {:context (fx/swap-context context assoc :state/session new-session)
-         :persist-session {:session new-session}}))))
+      (let [new-state (-> (fx/sub-val context identity)
+                          (ui.annotate/set-active-palette palette-id)
+                          (state.palettes/mark-last-used palette-id))]
+        {:context (fx/swap-context context (constantly new-state))
+         :persist-palettes {:palettes (:state/palettes new-state)}}))))
 
 (defmethod handle-event :annotate/copy-annotations [{:keys [fx/context]}]
   (if (subs/any-annotations? context)
-    {:copy-to-clipboard {:text (subs/annotations-for-llm context)}
-     :toast (->toast "Copied annotations to clipboard" :success)}
-    {:toast (->toast "Add some annotations first" :warning)}))
+    {:copy-to-clipboard {:text (subs/annotations-str context)}
+     :toast (ui/->toast "Copied annotations to clipboard" :success)}
+    {:toast (ui/->toast "Add some annotations first" :warning)}))

@@ -4,9 +4,9 @@
    [adnotare.app.events]
    [adnotare.app.manage-prompts.events]
    [adnotare.app.node-registry :as node-registry]
+   [adnotare.core.persist.palettes :as persist.palettes]
+   [adnotare.core.state :as state]
    [adnotare.fx.handler :refer [handle-event]]
-   [adnotare.model.persistence :as persistence]
-   [adnotare.model.state :as state]
    [cljfx.api :as fx])
   (:import
    (java.util UUID)
@@ -44,7 +44,7 @@
         :toast
         (fn [toast dispatch]
           (let [id (UUID/randomUUID)]
-            (doto (PauseTransition. (Duration/millis (:duration-ms toast)))
+            (doto (PauseTransition. (Duration/millis (:toast/duration-ms toast)))
               (.setOnFinished (reify EventHandler
                                 (handle [_ _]
                                   (dispatch {:event/type :app/clear-toast
@@ -53,7 +53,6 @@
             (dispatch {:event/type :app/add-toast
                        :id id
                        :toast toast})))
-        ;; TODO: DRY ':toast'?
         :dispatch-later
         (fn [{:keys [ms event]} dispatch]
           (doto (PauseTransition. (Duration/millis ms))
@@ -73,13 +72,13 @@
           (let [clipboard (Clipboard/getSystemClipboard)
                 text (when (.hasString clipboard) (.getString clipboard))]
             (dispatch (assoc on-clipboard :text text))))
-        :init-session
-        (fn [{:keys [on-init]} dispatch]
-          (let [result (persistence/init-state)]
-            (dispatch (merge on-init result))))
-        :persist-session
-        (fn [{:keys [session]} _dispatch]
-          (persistence/persist-session! session))
+        :load-palettes
+        (fn [{:keys [on-load]} dispatch]
+          (let [result (persist.palettes/read-palettes)]
+            (dispatch (merge on-load result))))
+        :persist-palettes
+        (fn [{:keys [palettes]} _dispatch]
+          (persist.palettes/write-palettes! palettes))
         :copy-to-clipboard
         (fn [{:keys [text]} _dispatch]
           (let [clipboard (Clipboard/getSystemClipboard)
@@ -88,6 +87,5 @@
             (.setContent clipboard content)))
         :ui
         (fn [{:keys [updates]} _dispatch]
-          ;; Yield.
           (run-later! #())
           (run-later! #(run! node-registry/execute-update! updates)))})))

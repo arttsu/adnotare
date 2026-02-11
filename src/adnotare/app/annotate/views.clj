@@ -14,7 +14,7 @@
     :code-area/model (subs/doc-rich-text context)
     :code-area/read-only? true}))
 
-(defn- prompt-button [{:keys [id text color]}]
+(defn- prompt-button [{:prompt/keys [id text color]}]
   {:fx/type :button
    :text text
    :tooltip {:fx/type :tooltip :text text}
@@ -45,10 +45,9 @@
 (defn- palette-selector [{:keys [fx/context]}]
   (let [palettes (subs/palette-options context)
         active-id (subs/active-palette-id context)
-        ;; TODO: Is there a better approach?
-        active-palette (first (filter #(= (:id %) active-id) palettes))
+        active-palette (first (filter #(= (:option/id %) active-id) palettes))
         cell-fn (fn [item]
-                  {:text (if item (:label item) "")})]
+                  {:text (if item (:option/label item) "")})]
     {:fx/type :combo-box
      :items palettes
      :value active-palette
@@ -56,10 +55,10 @@
      :button-cell cell-fn
      :cell-factory {:fx/cell-type :list-cell
                     :describe (fn [item]
-                                {:text (:label item)})}
+                                {:text (:option/label item)})}
      :on-action {:event/type :annotate/switch-palette}}))
 
-(defn- annotation-list-item [{:keys [id selection prompt selected?]}]
+(defn- annotation-list-item [{:annotation/keys [id selection prompt selected?]}]
   {:fx/type :h-box
    :alignment :center-left
    :padding 10
@@ -74,19 +73,19 @@
                :min-width 12 :min-height 12
                :pref-width 12 :pref-height 12
                :max-width 12 :max-height 12
-               :style-class [(str "color-" (:color prompt))]}
+               :style-class [(str "color-" (:prompt/color prompt))]}
               {:fx/type :v-box
                :spacing 4
                :alignment :center-left
                :h-box/hgrow :always
                :max-width Double/MAX_VALUE
                :children [{:fx/type :label
-                           :text (:text prompt)
+                           :text (:prompt/text prompt)
                            :style-class ["ann-list-item-prompt"]
                            :wrap-text false
                            :text-overrun OverrunStyle/ELLIPSIS}
                           {:fx/type :label
-                           :text (:text selection)
+                           :text (:selection/text selection)
                            :max-width Double/MAX_VALUE
                            :min-height 34
                            :max-height 34
