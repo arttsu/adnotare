@@ -29,6 +29,14 @@
   (testing "returns nil when no active palette"
     (is (nil? (session/active-palette (assoc-in default-session [:annotate :active-palette-id] nil))))))
 
+(deftest palette
+  (testing "returns palette data by id"
+    (let [palette (session/palette default-session (uuid/named "default-palette"))]
+      (is (= "Default" (:label palette)))
+      (is (= (uuid/named "default-palette") (:id palette)))))
+  (testing "returns nil for unknown palette id"
+    (is (nil? (session/palette default-session (uuid/named "unknown-palette"))))))
+
 (deftest palette-options
   (testing "returns palette options sorted case-insensitively by label"
     (let [session-with-palettes (assoc default-session
@@ -166,3 +174,37 @@ Etymology
           updated-session (session/set-active-palette default-session palette-id now-ms)]
       (is (= palette-id (get-in updated-session [:annotate :active-palette-id])))
       (is (= now-ms (get-in updated-session [:palettes :last-used-ms palette-id]))))))
+
+(deftest sync-manage-prompts-with-active-palette
+  (testing "copies annotate active palette into manage-prompts and clears selected prompt"
+    (let [session-with-manager (-> default-session
+                                   (assoc-in [:manage-prompts :selected-palette-id] (uuid/named "older-palette"))
+                                   (assoc-in [:manage-prompts :selected-prompt-id] (uuid/named "default-prompt-1")))
+          updated-session (session/sync-manage-prompts-with-active-palette session-with-manager)]
+      (is (= (uuid/named "default-palette")
+             (get-in updated-session [:manage-prompts :selected-palette-id])))
+      (is (nil? (get-in updated-session [:manage-prompts :selected-prompt-id]))))))
+
+(deftest manage-prompts-selection
+  (testing "select-manage-prompts-palette sets palette and clears prompt"
+    (let [updated-session (-> default-session
+                              (assoc-in [:manage-prompts :selected-prompt-id] (uuid/named "default-prompt-2"))
+                              (session/select-manage-prompts-palette (uuid/named "default-palette")))]
+      (is (= (uuid/named "default-palette")
+             (get-in updated-session [:manage-prompts :selected-palette-id])))
+      (is (nil? (get-in updated-session [:manage-prompts :selected-prompt-id])))))
+  (testing "select-manage-prompts-prompt sets prompt"
+    (let [updated-session (session/select-manage-prompts-prompt default-session (uuid/named "default-prompt-4"))]
+      (is (= (uuid/named "default-prompt-4")
+             (get-in updated-session [:manage-prompts :selected-prompt-id])))))
+  (testing "manage-prompts readers return selected palette and prompt"
+    (let [managed-session (-> default-session
+                              (session/select-manage-prompts-palette (uuid/named "default-palette"))
+                              (session/select-manage-prompts-prompt (uuid/named "default-prompt-4")))]
+      (is (= (uuid/named "default-palette")
+             (session/manage-prompts-selected-palette-id managed-session)))
+      (is (= "Default" (some-> (session/manage-prompts-palette managed-session) :label)))
+      (is (= (uuid/named "default-prompt-4")
+             (session/manage-prompts-selected-prompt-id managed-session)))
+      (is (= "Give more details"
+             (some-> (session/manage-prompts-selected-prompt managed-session) :text))))))

@@ -51,15 +51,38 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 
-(defn active-palette [session]
-  (when-let [id (active-palette-id session)]
-    (let [normalized (palette-by-id session id)
-          {prompt-id-map :by-id prompt-order :order} (:prompts normalized)
+(defn palette [session palette-id]
+  (when-let [normalized (palette-by-id session palette-id)]
+    (let [{prompt-id-map :by-id prompt-order :order} (:prompts normalized)
           prompts (map (fn [id] (assoc (get prompt-id-map id) :id id)) prompt-order)]
       (assoc normalized
-             :id id
+             :id palette-id
              :prompts prompts))))
+(m/=> palette [:-> S/Session :uuid [:maybe S/Palette]])
+
+(defn active-palette [session]
+  (when-let [id (active-palette-id session)]
+    (palette session id)))
 (m/=> active-palette [:-> S/Session [:maybe S/Palette]])
+
+(defn manage-prompts-selected-palette-id [session]
+  (or (get-in session [:manage-prompts :selected-palette-id])
+      (active-palette-id session)))
+(m/=> manage-prompts-selected-palette-id [:-> S/Session [:maybe :uuid]])
+
+(defn manage-prompts-palette [session]
+  (when-let [palette-id (manage-prompts-selected-palette-id session)]
+    (palette session palette-id)))
+(m/=> manage-prompts-palette [:-> S/Session [:maybe S/Palette]])
+
+(defn manage-prompts-selected-prompt-id [session]
+  (get-in session [:manage-prompts :selected-prompt-id]))
+(m/=> manage-prompts-selected-prompt-id [:-> S/Session [:maybe :uuid]])
+
+(defn manage-prompts-selected-prompt [session]
+  (let [prompt-id (manage-prompts-selected-prompt-id session)]
+    (first (filter #(= (:id %) prompt-id) (:prompts (manage-prompts-palette session))))))
+(m/=> manage-prompts-selected-prompt [:-> S/Session [:maybe S/Prompt]])
 
 (defn palette-options [session]
   (->> (get-in session [:palettes :by-id])
@@ -180,3 +203,19 @@
 (m/=> set-active-palette [:function
                           [:-> S/Session :uuid S/Session]
                           [:-> S/Session :uuid S/Millis S/Session]])
+
+(defn sync-manage-prompts-with-active-palette [session]
+  (-> session
+      (assoc-in [:manage-prompts :selected-palette-id] (active-palette-id session))
+      (assoc-in [:manage-prompts :selected-prompt-id] nil)))
+(m/=> sync-manage-prompts-with-active-palette [:-> S/Session S/Session])
+
+(defn select-manage-prompts-palette [session palette-id]
+  (-> session
+      (assoc-in [:manage-prompts :selected-palette-id] palette-id)
+      (assoc-in [:manage-prompts :selected-prompt-id] nil)))
+(m/=> select-manage-prompts-palette [:-> S/Session :uuid S/Session])
+
+(defn select-manage-prompts-prompt [session prompt-id]
+  (assoc-in session [:manage-prompts :selected-prompt-id] prompt-id))
+(m/=> select-manage-prompts-prompt [:-> S/Session :uuid S/Session])

@@ -33,7 +33,10 @@
                              :selection {:start 31 :end 39 :text "Adnotare"}
                              :note "Etymology"}}
       :selected-id (uuid/named "ann-2")}
-     :active-palette-id (uuid/named "default-palette")}}
+     :active-palette-id (uuid/named "default-palette")}
+    :manage-prompts
+    {:selected-palette-id nil
+     :selected-prompt-id nil}}
    :state/app
    {:initialized? true
     :route :annotate

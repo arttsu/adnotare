@@ -2,6 +2,7 @@
   (:require
    [adnotare.app.annotate.events]
    [adnotare.app.events]
+   [adnotare.app.manage-prompts.events]
    [adnotare.app.node-registry :as node-registry]
    [adnotare.fx.handler :refer [handle-event]]
    [adnotare.model.persistence :as persistence]

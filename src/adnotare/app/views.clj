@@ -1,5 +1,6 @@
 (ns adnotare.app.views
   (:require [adnotare.app.annotate.views :as annotate]
+            [adnotare.app.manage-prompts.views :as manage-prompts]
             [adnotare.app.subs :as subs]
             [adnotare.util.resources :as resources]))
 
@@ -53,7 +54,8 @@
                  :text "Loading session..."}]}]})
 
 (defn root [{:keys [fx/context]}]
-  (let [initialized? (subs/initialized? context)]
+  (let [initialized? (subs/initialized? context)
+        route (subs/route context)]
     {:fx/type :stage
      :showing true
      :title "Adnotare"
@@ -67,7 +69,10 @@
       {:fx/type :stack-pane
        :children
        [(if initialized?
-          {:fx/type annotate/root}
+          (case route
+            :manage-prompts {:fx/type manage-prompts/root}
+            :annotate {:fx/type annotate/root}
+            {:fx/type annotate/root})
           {:fx/type loading-view})
         {:fx/type toast-list
          :stack-pane/alignment :bottom-center}]}}}))

@@ -9,7 +9,9 @@
     :annotate {:doc {:text ""}
                :annotations {:by-id {}
                              :selected-id nil}
-               :active-palette-id nil}}
+               :active-palette-id nil}
+    :manage-prompts {:selected-palette-id nil
+                     :selected-prompt-id nil}}
    :state/app {:route :annotate
                :toasts {:by-id {}}
                :initialized? false}})

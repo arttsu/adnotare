@@ -11,3 +11,7 @@
 (defn initialized? [context]
   (fx/sub-val context (comp :initialized? :state/app)))
 (m/=> initialized? [:-> S/Context :boolean])
+
+(defn route [context]
+  (fx/sub-val context (comp :route :state/app)))
+(m/=> route [:-> S/Context S/Route])

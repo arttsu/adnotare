@@ -59,11 +59,12 @@
   {:context (fx/swap-context context update-in [:state/session] session/update-selected-annotation-note event)})
 
 (defmethod handle-event :annotate/switch-palette [{:keys [fx/context fx/event]}]
-  (let [palette-id (-> event .getSource .getValue :id)
-        current-session (fx/sub-val context :state/session)
-        new-session (session/set-active-palette current-session palette-id)]
-    {:context (fx/swap-context context assoc :state/session new-session)
-     :persist-session {:session new-session}}))
+  (let [palette-id (-> event .getSource .getValue :id)]
+    (when palette-id
+      (let [current-session (fx/sub-val context :state/session)
+            new-session (session/set-active-palette current-session palette-id)]
+        {:context (fx/swap-context context assoc :state/session new-session)
+         :persist-session {:session new-session}}))))
 
 (defmethod handle-event :annotate/copy-annotations [{:keys [fx/context]}]
   (if (subs/any-annotations? context)

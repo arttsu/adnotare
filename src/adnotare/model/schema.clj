@@ -107,10 +107,16 @@
   [:map
    [:palettes Palettes]])
 
+(def ManagePrompts
+  [:map
+   [:selected-palette-id [:maybe :uuid]]
+   [:selected-prompt-id [:maybe :uuid]]])
+
 (def Session
   [:map
    [:palettes Palettes]
-   [:annotate Annotate]])
+   [:annotate Annotate]
+   [:manage-prompts ManagePrompts]])
 
 (def Route [:enum :annotate :manage-prompts])
 

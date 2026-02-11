@@ -2,6 +2,7 @@
   (:require
    [adnotare.fx.handler :refer [handle-event]]
    [adnotare.model.app :as app]
+   [adnotare.model.session :as session]
    [adnotare.model.toast :refer [->toast]]
    [cljfx.api :as fx])
   (:import
@@ -26,3 +27,12 @@
                 (->toast (str "Loading persisted session failed: " (or reason "unknown error")) :error))]
     {:context (fx/reset-context context state)
      :toast toast}))
+
+(defmethod handle-event :app/navigate [{:keys [fx/context route]}]
+  {:context (fx/swap-context
+             context
+             (fn [state]
+               (let [state (assoc-in state [:state/app :route] route)]
+                 (if (= route :manage-prompts)
+                   (update state :state/session session/sync-manage-prompts-with-active-palette)
+                   state))))})

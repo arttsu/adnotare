@@ -121,13 +121,19 @@
       :pref-row-count 6
       :on-text-changed {:event/type :annotate/update-selected-annotation-note}})))
 
-(defn- section [label content]
+(defn- section [label content & {:keys [header-right]}]
   {:fx/type :v-box
    :style-class ["section"]
    :spacing 8
-   :children [{:fx/type :label
-               :text label
-               :style-class ["section-label"]}
+   :children [{:fx/type :h-box
+               :alignment :center-left
+               :spacing 8
+               :children (cond-> [{:fx/type :label
+                                   :text label
+                                   :style-class ["section-label"]}
+                                  {:fx/type :region
+                                   :h-box/hgrow :always}]
+                           header-right (conj header-right))}
               content]})
 
 (defn root [_]
@@ -155,7 +161,12 @@
     {:fx/type :v-box
      :padding 10
      :spacing 12
-     :children [(section "Palette" {:fx/type palette-selector})
+     :children [(section "Palette"
+                         {:fx/type palette-selector}
+                         :header-right {:fx/type :button
+                                        :text "Manage"
+                                        :on-action {:event/type :app/navigate
+                                                    :route :manage-prompts}})
                 (section "Prompts" {:fx/type prompt-pane})
                 (section "Annotations" {:fx/type annotation-list})
                 (section "Annotation note" {:fx/type annotation-note-input})]}]})
