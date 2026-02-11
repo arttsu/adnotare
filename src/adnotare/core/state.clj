@@ -23,18 +23,17 @@
 
 (def default-palettes
   {:palettes/by-id {(uuid/named "default-palette") default-palette}
-   :palettes/order [(uuid/named "default-palette")]
    :palettes/last-used-ms {}})
 
 (def initial
   {:state/document {:document/text ""
-                    :document/annotations {:by-id {}
-                                           :order []}}
-   :state/palettes default-palettes
+                    :document/annotations {:by-id {}}}
+   :state/palettes {:palettes/by-id {}
+                    :palettes/last-used-ms {}}
    :state/ui {:ui/initialized? false
               :ui/route :annotate
               :ui/toasts {:by-id {}}
-              :ui/annotate {:annotate/active-palette-id (uuid/named "default-palette")
+              :ui/annotate {:annotate/active-palette-id nil
                             :annotate/selected-annotation-id nil}
               :ui/manage-prompts {:manage-prompts/selected-palette-id nil
                                   :manage-prompts/selected-prompt-id nil}}})

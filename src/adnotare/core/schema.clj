@@ -27,7 +27,6 @@
 (def Palettes
   [:map
    [:palettes/by-id [:map-of :uuid Palette]]
-   [:palettes/order [:sequential :uuid]]
    [:palettes/last-used-ms [:map-of :uuid Millis]]])
 
 (def Selection
@@ -49,8 +48,7 @@
 
 (def NormalizedAnnotations
   [:map
-   [:by-id [:map-of :uuid Annotation]]
-   [:order [:sequential :uuid]]])
+   [:by-id [:map-of :uuid Annotation]]])
 
 (def Document
   [:map

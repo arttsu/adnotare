@@ -28,11 +28,9 @@
       (uuid/named "ann-2") {:annotation/prompt-ref {:prompt-ref/palette-id (uuid/named "default-palette")
                                                     :prompt-ref/prompt-id (uuid/named "default-prompt-4")}
                             :annotation/selection {:selection/start 31 :selection/end 39 :selection/text "Adnotare"}
-                            :annotation/note "Etymology"}}
-     :order [(uuid/named "ann-1") (uuid/named "ann-2")]}}
+                            :annotation/note "Etymology"}}}}
    :state/palettes
    {:palettes/by-id {(uuid/named "default-palette") default-prompt-palette}
-    :palettes/order [(uuid/named "default-palette")]
     :palettes/last-used-ms {}}
    :state/ui
    {:ui/initialized? true

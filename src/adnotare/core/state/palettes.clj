@@ -1,4 +1,6 @@
-(ns adnotare.core.state.palettes)
+(ns adnotare.core.state.palettes
+  (:require
+   [clojure.string :as string]))
 
 (defn palettes [state]
   (:state/palettes state))
@@ -12,12 +14,10 @@
 (defn palette-by-id [state palette-id]
   (get-in state [:state/palettes :palettes/by-id palette-id]))
 
-(defn order [state]
-  (get-in state [:state/palettes :palettes/order]))
-
 (defn palette-id-seq [state]
-  (or (seq (order state))
-      (keys (by-id state))))
+  (->> (by-id state)
+       (sort-by (comp string/lower-case :palette/label val))
+       (map key)))
 
 (defn mark-last-used
   ([state palette-id]

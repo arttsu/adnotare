@@ -16,8 +16,8 @@
            :annotation/selected? (= annotation-id (ui.annotate/selected-annotation-id state)))))
 
 (defn annotations [state]
-  (->> (get-in state [:state/document :document/annotations :order])
-       (map #(annotation state %))
+  (->> (keys (get-in state [:state/document :document/annotations :by-id]))
+       (map (fn [annotation-id] (annotation state annotation-id)))
        (remove nil?)
        (sort-by (comp :selection/start :annotation/selection))
        vec))
@@ -29,22 +29,23 @@
 (defn doc-rich-text [state]
   {:rich-text/text (get-in state [:state/document :document/text])
    :rich-text/spans (mapv (fn [{:annotation/keys [prompt selection selected?]}]
-                            {:span/start (:selection/start selection)
-                             :span/end (:selection/end selection)
-                             :span/style-classes (cond-> ["rich-text-span"
-                                                          (str "color-" (:prompt/color prompt))]
-                                                   selected? (conj "selected"))})
+                            (let [base-style ["rich-text-span"
+                                              (str "color-" (or (:prompt/color prompt) 0))]]
+                              {:span/start (:selection/start selection)
+                               :span/end (:selection/end selection)
+                               :span/style-classes (cond-> base-style
+                                                     selected? (conj "selected"))}))
                           (annotations state))})
 
 (defn annotations-str [state]
   (->> (annotations state)
-       (map (fn [{:annotation/keys [prompt selection note]}]
+      (map (fn [{:annotation/keys [prompt selection note]}]
               (cond-> (str "<annotation>\n"
                            "<quote>\n"
                            (:selection/text selection) "\n"
                            "</quote>\n"
                            "<prompt>\n"
-                           (:prompt/text prompt) "\n"
+                           (or (:prompt/text prompt) "") "\n"
                            "</prompt>\n")
                 (not (string/blank? note)) (str "<note>\n"
                                                 note "\n"

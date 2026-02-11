@@ -3,47 +3,41 @@
    [adnotare.core.state.document :as state.document]
    [adnotare.core.state.palettes :as state.palettes]
    [adnotare.core.state.ui :as state.ui]
-   [adnotare.core.state.ui.annotate :as ui.annotate]
    [adnotare.core.state.ui.manage-prompts :as ui.manage-prompts]
    [adnotare.test.constants :refer [default-state]]
    [adnotare.util.uuid :as uuid]
    [clojure.test :refer [deftest is testing]]))
 
 (deftest document-state-mutations
-  (testing "replace-text clears annotations and selection"
+  (testing "replace-text clears annotations"
     (let [state (state.document/replace-text default-state "new document")]
       (is (= "new document" (get-in state [:state/document :document/text])))
-      (is (empty? (get-in state [:state/document :document/annotations :by-id])))
-      (is (empty? (get-in state [:state/document :document/annotations :order])))
-      (is (nil? (ui.annotate/selected-annotation-id state)))))
+      (is (empty? (get-in state [:state/document :document/annotations :by-id])))))
   (testing "add-annotation ignores nil ids"
     (let [selection {:selection/start 0 :selection/end 4 :selection/text "Test"}
           bad-state (state.document/add-annotation default-state
+                                                   nil
                                                    {:prompt-ref/palette-id nil
                                                     :prompt-ref/prompt-id (uuid/named "default-prompt-1")}
                                                    selection)]
       (is (= default-state bad-state))))
-  (testing "add-annotation writes normalized record and selects it"
+  (testing "add-annotation writes normalized record"
     (let [selection {:selection/start 0 :selection/end 5 :selection/text "Hello"}
           state (state.document/add-annotation default-state
+                                               (uuid/named "ann-3")
                                                {:prompt-ref/palette-id (uuid/named "default-palette")
                                                 :prompt-ref/prompt-id (uuid/named "default-prompt-1")}
-                                               selection
-                                               #(uuid/named "ann-3"))]
-      (is (= (uuid/named "ann-3") (ui.annotate/selected-annotation-id state)))
+                                               selection)]
       (is (= {:annotation/prompt-ref {:prompt-ref/palette-id (uuid/named "default-palette")
                                       :prompt-ref/prompt-id (uuid/named "default-prompt-1")}
               :annotation/selection selection
               :annotation/note ""}
              (get-in state [:state/document :document/annotations :by-id (uuid/named "ann-3")])))))
-  (testing "delete-annotation removes id from by-id and order"
+  (testing "delete-annotation removes id from by-id"
     (let [state (state.document/delete-annotation default-state (uuid/named "ann-2"))]
-      (is (nil? (get-in state [:state/document :document/annotations :by-id (uuid/named "ann-2")])))
-      (is (= [(uuid/named "ann-1")]
-             (get-in state [:state/document :document/annotations :order])))
-      (is (nil? (ui.annotate/selected-annotation-id state)))))
-  (testing "update-selected-annotation-note updates selected only"
-    (let [state (state.document/update-selected-annotation-note default-state "New note")]
+      (is (nil? (get-in state [:state/document :document/annotations :by-id (uuid/named "ann-2")])))))
+  (testing "update-annotation-note updates annotation by id"
+    (let [state (state.document/update-annotation-note default-state (uuid/named "ann-2") "New note")]
       (is (= "New note"
              (get-in state [:state/document :document/annotations :by-id (uuid/named "ann-2") :annotation/note]))))))
 

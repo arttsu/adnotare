@@ -14,7 +14,6 @@
                        {:palettes/by-id {(uuid/named "palette-z") {:palette/label "zeta" :palette/prompts {:by-id {} :order []}}
                                          (uuid/named "palette-a") {:palette/label "Alpha" :palette/prompts {:by-id {} :order []}}
                                          (uuid/named "palette-b") {:palette/label "beta" :palette/prompts {:by-id {} :order []}}}
-                        :palettes/order [(uuid/named "palette-z") (uuid/named "palette-a") (uuid/named "palette-b")]
                         :palettes/last-used-ms {}})]
       (is (= [{:option/id (uuid/named "palette-a") :option/label "Alpha"}
               {:option/id (uuid/named "palette-b") :option/label "beta"}

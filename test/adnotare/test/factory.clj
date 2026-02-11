@@ -20,5 +20,4 @@
                                    [(:palette/id palette)
                                     (dissoc palette :palette/id)]))
                          palettes)
-   :palettes/order (mapv :palette/id palettes)
    :palettes/last-used-ms last-used-ms})
