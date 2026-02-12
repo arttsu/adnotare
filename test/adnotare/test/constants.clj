@@ -30,8 +30,8 @@
                             :annotation/selection {:selection/start 31 :selection/end 39 :selection/text "Adnotare"}
                             :annotation/note "Etymology"}}}}
    :state/palettes
-   {:palettes/by-id {(uuid/named "default-palette") default-prompt-palette}
-    :palettes/last-used-ms {}}
+   {:by-id {(uuid/named "default-palette") default-prompt-palette}
+    :last-used-ms {}}
    :state/ui
    {:ui/initialized? true
     :ui/route :annotate

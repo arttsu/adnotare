@@ -26,8 +26,8 @@
 
 (def Palettes
   [:map
-   [:palettes/by-id [:map-of :uuid Palette]]
-   [:palettes/last-used-ms [:map-of :uuid Millis]]])
+   [:by-id [:map-of :uuid Palette]]
+   [:last-used-ms [:map-of :uuid Millis]]])
 
 (def Selection
   [:map

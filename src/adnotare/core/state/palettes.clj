@@ -13,11 +13,11 @@
 (m/=> put-palettes [:=> [:cat S/State S/Palettes] S/State])
 
 (defn by-id [state]
-  (get-in state [:state/palettes :palettes/by-id]))
+  (get-in state [:state/palettes :by-id]))
 (m/=> by-id [:=> [:cat S/State] [:map-of :uuid S/Palette]])
 
 (defn palette-by-id [state palette-id]
-  (get-in state [:state/palettes :palettes/by-id palette-id]))
+  (get-in state [:state/palettes :by-id palette-id]))
 (m/=> palette-by-id [:=> [:cat S/State :uuid] [:maybe S/Palette]])
 
 (defn palette-id-seq [state]
@@ -30,14 +30,14 @@
   ([state palette-id]
    (mark-last-used state palette-id (System/currentTimeMillis)))
   ([state palette-id now-ms]
-   (assoc-in state [:state/palettes :palettes/last-used-ms palette-id] now-ms)))
+   (assoc-in state [:state/palettes :last-used-ms palette-id] now-ms)))
 (m/=> mark-last-used
       [:function
        [:=> [:cat S/State :uuid] S/State]
        [:=> [:cat S/State :uuid S/Millis] S/State]])
 
 (defn most-recent-id [state]
-  (let [last-used (get-in state [:state/palettes :palettes/last-used-ms])]
+  (let [last-used (get-in state [:state/palettes :last-used-ms])]
     (when (seq last-used)
       (first (apply max-key val last-used)))))
 (m/=> most-recent-id [:=> [:cat S/State] [:maybe :uuid]])

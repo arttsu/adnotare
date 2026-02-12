@@ -8,7 +8,7 @@
 (defn- prompt-by-ref [state prompt-ref]
   (let [palette-id (:prompt-ref/palette-id prompt-ref)
         prompt-id (:prompt-ref/prompt-id prompt-ref)]
-    (get-in state [:state/palettes :palettes/by-id palette-id :palette/prompts :by-id prompt-id])))
+    (get-in state [:state/palettes :by-id palette-id :palette/prompts :by-id prompt-id])))
 
 (defn annotation [state annotation-id]
   (when-let [normalized (get-in state [:state/document :document/annotations :by-id annotation-id])]

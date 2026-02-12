@@ -16,8 +16,8 @@
   {:prompt/id id :prompt/text text :prompt/color color})
 
 (defn ->palettes [{:keys [palettes last-used-ms] :or {last-used-ms {}}}]
-  {:palettes/by-id (into {} (map (fn [palette]
+  {:by-id (into {} (map (fn [palette]
                                    [(:palette/id palette)
                                     (dissoc palette :palette/id)]))
                          palettes)
-   :palettes/last-used-ms last-used-ms})
+   :last-used-ms last-used-ms})

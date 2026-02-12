@@ -7,11 +7,11 @@
    [malli.core :as m]))
 
 (defn- prompt [state palette-id prompt-id]
-  (when-let [normalized (get-in state [:state/palettes :palettes/by-id palette-id :palette/prompts :by-id prompt-id])]
+  (when-let [normalized (get-in state [:state/palettes :by-id palette-id :palette/prompts :by-id prompt-id])]
     (assoc normalized :prompt/id prompt-id)))
 
 (defn palette [state palette-id]
-  (when-let [normalized (get-in state [:state/palettes :palettes/by-id palette-id])]
+  (when-let [normalized (get-in state [:state/palettes :by-id palette-id])]
     (let [prompt-order (get-in normalized [:palette/prompts :order])
           prompts (mapv #(prompt state palette-id %) prompt-order)]
       {:palette/id palette-id
@@ -29,7 +29,7 @@
 (m/=> active-prompts [:=> [:cat S/State] [:maybe [:sequential S/DerivedPrompt]]])
 
 (defn palette-options [state]
-  (->> (get-in state [:state/palettes :palettes/by-id])
+  (->> (get-in state [:state/palettes :by-id])
        (map (fn [[palette-id palette]]
               {:option/id palette-id
                :option/label (:palette/label palette)}))

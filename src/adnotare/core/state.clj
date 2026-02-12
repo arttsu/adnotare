@@ -24,14 +24,14 @@
                              (uuid/named "default-prompt-6")]}})
 
 (def default-palettes
-  {:palettes/by-id {(uuid/named "default-palette") default-palette}
-   :palettes/last-used-ms {}})
+  {:by-id {(uuid/named "default-palette") default-palette}
+   :last-used-ms {}})
 
 (def initial
   {:state/document {:document/text ""
                     :document/annotations {:by-id {}}}
-   :state/palettes {:palettes/by-id {}
-                    :palettes/last-used-ms {}}
+   :state/palettes {:by-id {}
+                    :last-used-ms {}}
    :state/ui {:ui/initialized? false
               :ui/route :annotate
               :ui/toasts {:by-id {}}
@@ -40,7 +40,7 @@
               :ui/manage-prompts {:manage-prompts/selected-palette-id nil
                                   :manage-prompts/selected-prompt-id nil}}})
 
-;; PR: Unused
+
 (defn initialize [state palettes]
   (let [state (state.palettes/put-palettes state palettes)
         active-id (or (state.palettes/most-recent-id state)

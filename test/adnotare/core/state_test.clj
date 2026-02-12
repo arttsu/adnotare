@@ -43,16 +43,16 @@
 (deftest palettes-state
   (let [palette-a (uuid/named "palette-a")
         palette-b (uuid/named "palette-b")
-        palettes {:palettes/by-id {palette-a {:palette/label "zeta"
+        palettes {:by-id {palette-a {:palette/label "zeta"
                                               :palette/prompts {:by-id {} :order []}}
                                    palette-b {:palette/label "Alpha"
                                               :palette/prompts {:by-id {} :order []}}}
-                  :palettes/last-used-ms {}}]
+                  :last-used-ms {}}]
     (testing "palette accessors"
       (is (= (:state/palettes default-state) (state.palettes/palettes default-state)))
       (is (= palettes
              (:state/palettes (state.palettes/put-palettes default-state palettes))))
-      (is (= (:palettes/by-id palettes)
+      (is (= (:by-id palettes)
              (state.palettes/by-id (state.palettes/put-palettes default-state palettes))))
       (is (= {:palette/label "Alpha" :palette/prompts {:by-id {} :order []}}
              (state.palettes/palette-by-id (state.palettes/put-palettes default-state palettes) palette-b))))
@@ -66,9 +66,9 @@
             marked-a (state.palettes/mark-last-used with-palettes palette-a 10)
             marked-b (state.palettes/mark-last-used marked-a palette-b 11)
             marked-now (state.palettes/mark-last-used with-palettes palette-a)]
-        (is (= 10 (get-in marked-a [:state/palettes :palettes/last-used-ms palette-a])))
+        (is (= 10 (get-in marked-a [:state/palettes :last-used-ms palette-a])))
         (is (= palette-b (state.palettes/most-recent-id marked-b)))
-        (is (integer? (get-in marked-now [:state/palettes :palettes/last-used-ms palette-a])))))))
+        (is (integer? (get-in marked-now [:state/palettes :last-used-ms palette-a])))))))
 
 (deftest ui-state
   (testing "route and initialized flags"
@@ -131,9 +131,9 @@
   (testing "with-palettes sets initialized and picks most-recent"
     (let [palette-id-a (uuid/named "palette-a")
           palette-id-b (uuid/named "palette-b")
-          palettes {:palettes/by-id {palette-id-a default-prompt-palette
+          palettes {:by-id {palette-id-a default-prompt-palette
                                      palette-id-b default-prompt-palette}
-                    :palettes/last-used-ms {palette-id-a 10
+                    :last-used-ms {palette-id-a 10
                                             palette-id-b 11}}
           next-state (state/initialize state/initial palettes)]
       (is (true? (get-in next-state [:state/ui :ui/initialized?])))
@@ -142,9 +142,9 @@
   (testing "with-palettes falls back to first palette when no usage timestamps"
     (let [palette-id-a (uuid/named "palette-a")
           palette-id-b (uuid/named "palette-b")
-          palettes {:palettes/by-id {palette-id-a (assoc default-prompt-palette :palette/label "B")
+          palettes {:by-id {palette-id-a (assoc default-prompt-palette :palette/label "B")
                                      palette-id-b (assoc default-prompt-palette :palette/label "A")}
-                    :palettes/last-used-ms {}}
+                    :last-used-ms {}}
           next-state (state/initialize state/initial palettes)]
       (is (= palette-id-b
              (get-in next-state [:state/ui :ui/annotate :annotate/active-palette-id]))))))

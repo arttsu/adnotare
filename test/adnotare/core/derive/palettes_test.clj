@@ -11,10 +11,10 @@
   (testing "palette options are sorted by label"
     (let [state (assoc default-state
                        :state/palettes
-                       {:palettes/by-id {(uuid/named "palette-z") {:palette/label "zeta" :palette/prompts {:by-id {} :order []}}
+                       {:by-id {(uuid/named "palette-z") {:palette/label "zeta" :palette/prompts {:by-id {} :order []}}
                                          (uuid/named "palette-a") {:palette/label "Alpha" :palette/prompts {:by-id {} :order []}}
                                          (uuid/named "palette-b") {:palette/label "beta" :palette/prompts {:by-id {} :order []}}}
-                        :palettes/last-used-ms {}})]
+                        :last-used-ms {}})]
       (is (= [{:option/id (uuid/named "palette-a") :option/label "Alpha"}
               {:option/id (uuid/named "palette-b") :option/label "beta"}
               {:option/id (uuid/named "palette-z") :option/label "zeta"}]
