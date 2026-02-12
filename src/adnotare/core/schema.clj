@@ -119,16 +119,5 @@
     [:annotation/prompt [:maybe Prompt]]
     [:annotation/selected? :boolean]]))
 
-(def PersistedPalettes
-  [:map
-   [:palettes/version [:= 1]]
-   [:palettes/data Palettes]])
-
 (def DerivedToast
   (mu/merge NormalizedToast [:map [:toast/id :uuid]]))
-
-(def UISelection
-  [:map
-   [:start [:int {:min 0}]]
-   [:end [:int {:min 0}]]
-   [:text :string]])

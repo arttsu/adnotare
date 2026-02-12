@@ -25,7 +25,7 @@
                   (state.ui/clear-toast id))]
     (apply-state context state {})))
 
-(defmethod handle-event :app/start [{:keys [fx/context]}]
+(defmethod handle-event :app/initialize [{:keys [fx/context]}]
   (apply-state context
                (fx/sub-val context identity)
                {:load-palettes {:on-load {:event/type :app/on-palettes-loaded}}}))
@@ -36,7 +36,7 @@
                 (state.ui/->toast "Initialized successfully" :success)
                 (state.ui/->toast (str "Loading persisted palettes failed: " (or reason "unknown error"))
                                   :error))
-        state (state/with-palettes current (or palettes state/default-palettes))]
+        state (state/initialize current (or palettes state/default-palettes))]
     (apply-state context state {:toast toast})))
 
 (defmethod handle-event :app/navigate [{:keys [fx/context route]}]

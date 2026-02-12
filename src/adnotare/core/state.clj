@@ -40,11 +40,12 @@
               :ui/manage-prompts {:manage-prompts/selected-palette-id nil
                                   :manage-prompts/selected-prompt-id nil}}})
 
-(defn with-palettes [state palettes]
+;; PR: Unused
+(defn initialize [state palettes]
   (let [state (state.palettes/put-palettes state palettes)
         active-id (or (state.palettes/most-recent-id state)
                       (state.palettes/first-palette-id state))]
     (-> state
         (state.ui.annotate/set-active-palette active-id)
         (state.ui/set-initialized true))))
-(m/=> with-palettes [:=> [:cat S/State S/Palettes] S/State])
+(m/=> initialize [:=> [:cat S/State S/Palettes] S/State])

@@ -135,7 +135,7 @@
                                      palette-id-b default-prompt-palette}
                     :palettes/last-used-ms {palette-id-a 10
                                             palette-id-b 11}}
-          next-state (state/with-palettes state/initial palettes)]
+          next-state (state/initialize state/initial palettes)]
       (is (true? (get-in next-state [:state/ui :ui/initialized?])))
       (is (= palette-id-b
              (get-in next-state [:state/ui :ui/annotate :annotate/active-palette-id])))))
@@ -145,6 +145,6 @@
           palettes {:palettes/by-id {palette-id-a (assoc default-prompt-palette :palette/label "B")
                                      palette-id-b (assoc default-prompt-palette :palette/label "A")}
                     :palettes/last-used-ms {}}
-          next-state (state/with-palettes state/initial palettes)]
+          next-state (state/initialize state/initial palettes)]
       (is (= palette-id-b
              (get-in next-state [:state/ui :ui/annotate :annotate/active-palette-id]))))))

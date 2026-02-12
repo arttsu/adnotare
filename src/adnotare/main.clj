@@ -1,4 +1,5 @@
 (ns adnotare.main
+  ;; PR: I'd like to find a better name for 'handler' ns.
   (:require [adnotare.app.handler :refer [*state event-handler]]
             [adnotare.app.views :as views]
             [cljfx.api :as fx]))
@@ -20,4 +21,4 @@
   (maybe-start-malli-dev!)
   (fx/mount-renderer *state renderer)
   (fx/on-fx-thread
-   (event-handler {:event/type :app/start})))
+   (event-handler {:event/type :app/initialize})))
