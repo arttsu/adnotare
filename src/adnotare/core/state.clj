@@ -27,11 +27,12 @@
   {:by-id {(uuid/named "default-palette") default-palette}
    :last-used-ms {}})
 
+;; TODO: Store last-used-ms inside each palette.
 (def initial
-  {:state/document {:document/text ""
-                    :document/annotations {:by-id {}}}
-   :state/palettes {:by-id {}
+  {:state/palettes {:by-id {}
                     :last-used-ms {}}
+   :state/document {:document/text ""
+                    :document/annotations {:by-id {}}}
    :state/ui {:ui/initialized? false
               :ui/route :annotate
               :ui/toasts {:by-id {}}
@@ -42,10 +43,11 @@
 
 
 (defn initialize [state palettes]
-  (let [state (state.palettes/put-palettes state palettes)
-        active-id (or (state.palettes/most-recent-id state)
-                      (state.palettes/first-palette-id state))]
+  ;; (let [state (state.palettes/put-palettes state palettes)
+  (let [state (assoc state :state/palettes palettes)
+        active-palette-id (or (state.palettes/most-recently-used-id state)
+                              (state.palettes/first-id state))]
     (-> state
-        (state.ui.annotate/set-active-palette active-id)
+        (state.ui.annotate/set-active-palette active-palette-id)
         (state.ui/set-initialized true))))
 (m/=> initialize [:=> [:cat S/State S/Palettes] S/State])

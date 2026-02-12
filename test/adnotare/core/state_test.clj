@@ -58,16 +58,16 @@
              (state.palettes/palette-by-id (state.palettes/put-palettes default-state palettes) palette-b))))
     (testing "ordering and derived ids"
       (let [with-palettes (state.palettes/put-palettes default-state palettes)]
-        (is (= [palette-b palette-a] (vec (state.palettes/palette-id-seq with-palettes))))
-        (is (= palette-b (state.palettes/first-palette-id with-palettes)))
-        (is (nil? (state.palettes/most-recent-id with-palettes)))))
+        (is (= [palette-b palette-a] (vec (state.palettes/ordered-ids with-palettes))))
+        (is (= palette-b (state.palettes/first-id with-palettes)))
+        (is (nil? (state.palettes/most-recently-used-id with-palettes)))))
     (testing "mark-last-used arities and most-recent"
       (let [with-palettes (state.palettes/put-palettes default-state palettes)
             marked-a (state.palettes/mark-last-used with-palettes palette-a 10)
             marked-b (state.palettes/mark-last-used marked-a palette-b 11)
             marked-now (state.palettes/mark-last-used with-palettes palette-a)]
         (is (= 10 (get-in marked-a [:state/palettes :last-used-ms palette-a])))
-        (is (= palette-b (state.palettes/most-recent-id marked-b)))
+        (is (= palette-b (state.palettes/most-recently-used-id marked-b)))
         (is (integer? (get-in marked-now [:state/palettes :last-used-ms palette-a])))))))
 
 (deftest ui-state

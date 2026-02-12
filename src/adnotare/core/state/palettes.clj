@@ -4,13 +4,14 @@
    [clojure.string :as string]
    [malli.core :as m]))
 
-(defn palettes [state]
-  (:state/palettes state))
-(m/=> palettes [:=> [:cat S/State] S/Palettes])
+;; (defn palettes [state]
+;;   (:state/palettes state))
+;; (m/=> palettes [:=> [:cat S/State] S/Palettes])
 
-(defn put-palettes [state palettes]
-  (assoc state :state/palettes palettes))
-(m/=> put-palettes [:=> [:cat S/State S/Palettes] S/State])
+;; TODO: I don't like these accessors here. Same for 'palettes'. I think this should be in state. Might be not useful at all.
+;; (defn put-palettes [state palettes]
+;;   (assoc state :state/palettes palettes))
+;; (m/=> put-palettes [:=> [:cat S/State S/Palettes] S/State])
 
 (defn by-id [state]
   (get-in state [:state/palettes :by-id]))
@@ -20,11 +21,11 @@
   (get-in state [:state/palettes :by-id palette-id]))
 (m/=> palette-by-id [:=> [:cat S/State :uuid] [:maybe S/Palette]])
 
-(defn palette-id-seq [state]
+(defn ordered-ids [state]
   (->> (by-id state)
        (sort-by (comp string/lower-case :palette/label val))
        (map key)))
-(m/=> palette-id-seq [:=> [:cat S/State] [:sequential :uuid]])
+(m/=> ordered-ids [:=> [:cat S/State] [:sequential :uuid]])
 
 (defn mark-last-used
   ([state palette-id]
@@ -36,12 +37,14 @@
        [:=> [:cat S/State :uuid] S/State]
        [:=> [:cat S/State :uuid S/Millis] S/State]])
 
-(defn most-recent-id [state]
+(defn most-recently-used-id [state]
   (let [last-used (get-in state [:state/palettes :last-used-ms])]
     (when (seq last-used)
       (first (apply max-key val last-used)))))
-(m/=> most-recent-id [:=> [:cat S/State] [:maybe :uuid]])
+(m/=> most-recently-used-id [:=> [:cat S/State] [:maybe :uuid]])
 
-(defn first-palette-id [state]
-  (first (palette-id-seq state)))
-(m/=> first-palette-id [:=> [:cat S/State] [:maybe :uuid]])
+(defn first-id
+  "Return the ID of the first palette in alphabetical order (case-insensitive)."
+  [state]
+  (first (ordered-ids state)))
+(m/=> first-id [:=> [:cat S/State] [:maybe :uuid]])
