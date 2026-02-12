@@ -1,66 +1,140 @@
 (ns adnotare.app.annotate.events
   (:require
-   [adnotare.core.event :as core.event]
-   [adnotare.core.event.annotate]
+   [adnotare.core.derive.annotate :as derive.annotate]
+   [adnotare.core.state.document :as state.document]
+   [adnotare.core.state.palettes :as state.palettes]
+   [adnotare.core.state.ui :as state.ui]
+   [adnotare.core.state.ui.annotate :as state.ui.annotate]
    [adnotare.fx.handler :refer [handle-event]]
-   [cljfx.api :as fx]))
+   [cljfx.api :as fx])
+  (:import
+   (java.util UUID)))
 
-(defn- apply-core
-  ([context event]
-   (apply-core context event nil))
-  ([context event env]
-   (let [{:keys [state] :as result} (core.event/handle (fx/sub-val context identity)
-                                                       (merge event env))]
-     (merge {:context (fx/reset-context context state)}
-            (dissoc result :state)))))
+(defn- apply-state [context state effects]
+  (merge {:context (fx/reset-context context state)} effects))
 
 (defmethod handle-event :annotate/select-annotation [{:keys [fx/context id]}]
-  (apply-core context {:event/type :annotate/select-annotation
-                       :id id}))
+  (let [state (-> (fx/sub-val context identity)
+                  (state.ui.annotate/select-annotation id))]
+    (apply-state context
+                 state
+                 {:dispatch {:event/type :annotate/reveal-document-selection}
+                  :dispatch-later {:ms 50
+                                   :event {:event/type :annotate/focus-note}}})))
 
 (defmethod handle-event :annotate/reveal-document-selection [{:keys [fx/context]}]
-  (apply-core context {:event/type :annotate/reveal-document-selection}))
+  (let [state (fx/sub-val context identity)
+        selection (some-> (derive.annotate/selected-annotation state) :annotation/selection)]
+    (apply-state context
+                 state
+                 (if selection
+                   {:ui {:updates [{:node-key :annotate/doc
+                                    :op :reveal-range
+                                    :selection {:start (:selection/start selection)
+                                                :end (:selection/end selection)
+                                                :text (:selection/text selection)}}]}}
+                   {}))))
 
 (defmethod handle-event :annotate/add-annotation [{:keys [fx/context prompt-id]}]
-  (apply-core context {:event/type :annotate/add-annotation
-                       :prompt-id prompt-id}))
+  (apply-state context
+               (fx/sub-val context identity)
+               {:get-selection {:node-key :annotate/doc
+                                :on-selection {:event/type :annotate/add-annotation-on-selection
+                                               :prompt-id prompt-id}}}))
 
 (defmethod handle-event :annotate/delete-annotation [{:keys [fx/context id fx/event]}]
-  (apply-core context
-              {:event/type :annotate/delete-annotation
-               :id id}
-              {:fx/event event}))
+  (let [state (fx/sub-val context identity)
+        selected-id (state.ui.annotate/selected-annotation-id state)
+        state (state.document/delete-annotation state id)
+        state (if (= selected-id id)
+                (state.ui.annotate/clear-annotation-selection state)
+                state)]
+    (apply-state context
+                 state
+                 (if event
+                   {:consume-event event}
+                   {}))))
 
 (defmethod handle-event :annotate/add-annotation-on-selection [{:keys [fx/context prompt-id selection]}]
-  (apply-core context {:event/type :annotate/add-annotation-on-selection
-                       :prompt-id prompt-id
-                       :selection selection}))
+  (let [state (fx/sub-val context identity)]
+    (if (or (nil? selection) (empty? (:text selection)))
+      (apply-state context state {:toast (state.ui/->toast "Please select some text first" :warning)})
+      (if-let [palette-id (state.ui.annotate/active-palette-id state)]
+        (let [annotation-id (UUID/randomUUID)
+              state (state.document/add-annotation
+                     state
+                     annotation-id
+                     {:prompt-ref/palette-id palette-id
+                      :prompt-ref/prompt-id prompt-id}
+                     {:selection/start (:start selection)
+                      :selection/end (:end selection)
+                      :selection/text (:text selection)})
+              state (state.ui.annotate/select-annotation state annotation-id)]
+          (apply-state context
+                       state
+                       {:dispatch {:event/type :annotate/clear-document-selection}
+                        :dispatch-later {:ms 50
+                                         :event {:event/type :annotate/focus-note}}}))
+        (apply-state context state {:toast (state.ui/->toast "Select a palette first" :warning)})))))
 
 (defmethod handle-event :annotate/clear-document-selection [{:keys [fx/context]}]
-  (apply-core context {:event/type :annotate/clear-document-selection}))
+  (apply-state context
+               (fx/sub-val context identity)
+               {:ui {:updates [{:node-key :annotate/doc :op :clear-selection}]}}))
 
 (defmethod handle-event :annotate/focus-note [{:keys [fx/context]}]
-  (apply-core context {:event/type :annotate/focus-note}))
+  (apply-state context
+               (fx/sub-val context identity)
+               {:ui {:updates [{:node-key :annotate/selected-annotation-note :op :focus}]}}))
 
 (defmethod handle-event :annotate/paste-doc [{:keys [fx/context]}]
-  (apply-core context {:event/type :annotate/paste-doc}))
+  (apply-state context
+               (fx/sub-val context identity)
+               {:get-clipboard {:on-clipboard {:event/type :annotate/paste-doc-on-clipboard}}}))
 
 (defmethod handle-event :annotate/paste-doc-on-clipboard [{:keys [fx/context text]}]
-  (apply-core context {:event/type :annotate/paste-doc-on-clipboard
-                       :text text}))
+  (let [state (fx/sub-val context identity)]
+    (if (or (nil? text) (empty? text))
+      (apply-state context state {:toast (state.ui/->toast "Clipboard is empty" :warning)})
+      (let [replace-doc-event {:event/type :annotate/replace-doc :text text}
+            any-annotations? (seq (derive.annotate/annotations state))]
+        (if any-annotations?
+          (apply-state context
+                       state
+                       {:confirm {:title "Replace document text?"
+                                  :header "Replace document text from clipboard?"
+                                  :content "This will remove all existing annotations. Continue?"
+                                  :yes-event replace-doc-event}})
+          (apply-state context state {:dispatch replace-doc-event}))))))
 
 (defmethod handle-event :annotate/replace-doc [{:keys [fx/context text]}]
-  (apply-core context {:event/type :annotate/replace-doc
-                       :text text}))
+  (let [state (-> (fx/sub-val context identity)
+                  (state.document/replace-text text)
+                  (state.ui.annotate/clear-annotation-selection))]
+    (apply-state context state {})))
 
 (defmethod handle-event :annotate/update-selected-annotation-note [{:keys [fx/context fx/event]}]
-  (apply-core context {:event/type :annotate/update-selected-annotation-note
-                       :text event}))
+  (let [state (fx/sub-val context identity)
+        selected-id (state.ui.annotate/selected-annotation-id state)
+        state (if selected-id
+                (state.document/update-annotation-note state selected-id event)
+                state)]
+    (apply-state context state {})))
 
 (defmethod handle-event :annotate/switch-palette [{:keys [fx/context fx/event]}]
   (let [palette-id (-> event .getSource .getValue :option/id)]
-    (apply-core context {:event/type :annotate/switch-palette
-                         :palette-id palette-id})))
+    (if palette-id
+      (let [state (-> (fx/sub-val context identity)
+                      (state.ui.annotate/set-active-palette palette-id)
+                      (state.palettes/mark-last-used palette-id))]
+        (apply-state context state {:persist-palettes {:palettes (:state/palettes state)}}))
+      (apply-state context (fx/sub-val context identity) {}))))
 
 (defmethod handle-event :annotate/copy-annotations [{:keys [fx/context]}]
-  (apply-core context {:event/type :annotate/copy-annotations}))
+  (let [state (fx/sub-val context identity)]
+    (if (seq (derive.annotate/annotations state))
+      (apply-state context
+                   state
+                   {:copy-to-clipboard {:text (derive.annotate/annotations-str state)}
+                    :toast (state.ui/->toast "Copied annotations to clipboard" :success)})
+      (apply-state context state {:toast (state.ui/->toast "Add some annotations first" :warning)}))))
