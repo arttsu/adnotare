@@ -1,7 +1,9 @@
 (ns adnotare.main
-  (:require [adnotare.app.handler :refer [*state event-handler]]
-            [adnotare.app.views :as views]
-            [cljfx.api :as fx]))
+  (:require
+   [adnotare.app.state :refer [*state event-handler]]
+   [adnotare.app.views :as views]
+   [adnotare.persistence.palettes :refer [read-persisted]]
+   [cljfx.api :as fx]))
 
 (defn- maybe-start-malli-dev! []
   (when (Boolean/parseBoolean (System/getProperty "adnotare.malli-dev" "false"))
@@ -19,5 +21,6 @@
 (defn -main [& _args]
   (maybe-start-malli-dev!)
   (fx/mount-renderer *state renderer)
-  (fx/on-fx-thread
-   (event-handler {:event/type :app/start})))
+  (let [palettes (read-persisted)]
+    (fx/on-fx-thread
+     (event-handler {:event/type :app/initialize, :palettes palettes}))))

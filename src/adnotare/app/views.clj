@@ -1,36 +1,40 @@
 (ns adnotare.app.views
-  (:require [adnotare.app.annotate.views :as annotate]
-            [adnotare.app.manage-prompts.views :as manage-prompts]
-            [adnotare.app.subs :as subs]
-            [adnotare.util.resources :as resources]))
+  (:require
+   [adnotare.app.annotator.views :as annotator.views]
+   [adnotare.app.prompt-manager.views :as prompt-manager.views]
+   [adnotare.app.subs :as subs]
+   [adnotare.core.model.app :as model.app]
+   [adnotare.core.model.toast :as toast]
+   [adnotare.util.resources :as resources]))
 
-(def ^:private toast-icon-by-type
-  {:success "OK"
-   :warning "!"
-   :error "X"
-   :info "i"})
+(def ^:private toast-type->icon
+  {::toast/success "OK"
+   ::toast/warning "!"
+   ::toast/error "X"
+   ::toast/info "i"})
 
-(defn- toast-banner [{:keys [text type]}]
+(defn- toast [[_id {::toast/keys [type text]}]]
   {:fx/type :h-box
    :style-class ["toast" (name type)]
    :padding 10
-   :alignment :center-left
    :spacing 10
-   :children [{:fx/type :region
-               :style-class ["toast-accent" (name type)]
-               :pref-width 4
-               :min-width 4
-               :max-width 4}
-              {:fx/type :label
-               :style-class ["toast-icon" (name type)]
-               :text (get toast-icon-by-type type "i")
-               :min-width 18
-               :alignment :center}
-              {:fx/type :label
-               :text text
-               :max-width 360}]})
+   :alignment :center-left
+   :children
+   [{:fx/type :region
+     :style-class ["toast-accent" (name type)]
+     :min-width 4
+     :pref-width 4
+     :max-width 4}
+    {:fx/type :label
+     :text (type toast-type->icon)
+     :style-class ["toast-icon" (name type)]
+     :min-width 18
+     :alignment :center}
+    {:fx/type :label
+     :text text
+     :max-width 360}]})
 
-(defn- toast-list [{:keys [fx/context]}]
+(defn- toasts [{:keys [fx/context]}]
   (let [toasts (subs/toasts context)]
     {:fx/type :v-box
      :pick-on-bounds false
@@ -39,9 +43,16 @@
      :padding 18
      :fill-width false
      :visible (any? toasts)
-     :children (map toast-banner toasts)}))
+     :children
+     (map toast toasts)}))
 
-(defn- loading-view [_]
+(defn- app [{:keys [fx/context]}]
+  (let [route (subs/route context)]
+    (case route
+      ::model.app/annotator {:fx/type annotator.views/root}
+      ::model.app/prompt-manager {:fx/type prompt-manager.views/root})))
+
+(defn- initializing-view [_]
   {:fx/type :stack-pane
    :children
    [{:fx/type :v-box
@@ -51,11 +62,10 @@
                  :max-width 48
                  :max-height 48}
                 {:fx/type :label
-                 :text "Loading session..."}]}]})
+                 :text "Loading palettes..."}]}]})
 
 (defn root [{:keys [fx/context]}]
-  (let [initialized? (subs/initialized? context)
-        route (subs/route context)]
+  (let [loaded? (subs/initialized? context)]
     {:fx/type :stage
      :showing true
      :title "Adnotare"
@@ -68,11 +78,8 @@
       :root
       {:fx/type :stack-pane
        :children
-       [(if initialized?
-          (case route
-            :manage-prompts {:fx/type manage-prompts/root}
-            :annotate {:fx/type annotate/root}
-            {:fx/type annotate/root})
-          {:fx/type loading-view})
-        {:fx/type toast-list
+       [(if loaded?
+          {:fx/type app}
+          {:fx/type initializing-view})
+        {:fx/type toasts
          :stack-pane/alignment :bottom-center}]}}}))

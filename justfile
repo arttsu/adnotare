@@ -18,8 +18,8 @@ lint:
     clj -M:dev -m clj-kondo.main --lint src test
 
 # Run tests
-test:
-    bin/kaocha
+test *args:
+    bin/kaocha {{args}}
 
 # Run tests and generate a coverage report
 test-cov:

@@ -1,5 +1,6 @@
 (ns adnotare.fx.extensions.code-area
-  (:require [cljfx.api :as fx]
+  (:require [adnotare.fx.style-spans :as style-spans]
+            [cljfx.api :as fx]
             [cljfx.lifecycle :as lifecycle]
             [cljfx.mutator :as mutator]
             [cljfx.prop :as prop])
@@ -15,38 +16,18 @@
     (ArrayList. active-classes)))
 
 (defn- ->style-spans [{:keys [text spans]}]
-  (let [n (count text)
-        events (reduce (fn [acc {:keys [start end style-classes]}]
-                         (-> acc
-                             (update start (fnil concat []) (for [cls style-classes] [:add cls]))
-                             (update end (fnil concat []) (for [cls style-classes] [:rem cls]))))
-                       {}
-                       spans)
-        idxs (->> (concat [0 n] (keys events)) distinct sort)
+  (let [runs (style-spans/style-runs text spans)
         builder (StyleSpansBuilder.)]
-    (loop [prev (first idxs)
-           active #{}
-           more (rest idxs)]
-      (if (empty? more)
-        (.create builder)
-        (let [i (first more)
-              span-len (- i prev)
-              active' (reduce (fn [acc [op cls]]
-                                (case op
-                                  :add (conj acc cls)
-                                  :rem (disj acc cls)))
-                              active
-                              (get events prev))]
-          (when (pos? span-len)
-            (.add builder (->style-collection active') span-len))
-          (recur i active' (rest more)))))))
+    (doseq [{:keys [len style-class]} runs]
+      (.add builder (->style-collection style-class) len))
+    (.create builder)))
 
 (defn pane->area ^CodeArea [^VirtualizedScrollPane pane]
   (let [user-data (.getUserData pane)]
     (when (instance? CodeArea user-data)
       user-data)))
 
-(defn pane->selection [^VirtualizedScrollPane pane]
+(defn get-selection [^VirtualizedScrollPane pane]
   (let [^CodeArea area (pane->area pane)
         ^IndexRange selection (.getSelection area)
         start (.getStart selection)
@@ -101,4 +82,3 @@
           :create ->code-area}
    :props {:code-area/model model
            :code-area/read-only? read-only?}})
-

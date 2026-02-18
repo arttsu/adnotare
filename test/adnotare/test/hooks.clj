@@ -6,7 +6,7 @@
 (defn malli-dev-start! [_test-plan]
   (dev/start! {:report (fn [type data]
                          ((pretty/reporter) type data)
-                         (throw (ex-info "Boom!" data)))})
+                         (throw (ex-info "Malli schema error" data)))})
 
   _test-plan)
 

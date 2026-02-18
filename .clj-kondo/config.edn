@@ -1,0 +1,3 @@
+{:hooks
+ {:analyze-call
+  {adnotare.core.util.result/if-ok hooks.adnotare.core.util.result/if-ok}}}
