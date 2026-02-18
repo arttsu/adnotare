@@ -77,6 +77,7 @@
       :stylesheets [(resources/url "app.css")]
       :root
       {:fx/type :stack-pane
+       :style-class ["app-root"]
        :children
        [(if loaded?
           {:fx/type app}

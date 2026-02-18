@@ -24,7 +24,7 @@
     (Platform/runLater f)))
 
 (defn- execute-node-update! [{:keys [node-key operation] :as update}]
-  (let [node (node-registry/node node-key)]
+  (when-let [node (node-registry/node node-key)]
     (case operation
       :focus (.requestFocus node)
       :text-area/select-content (.selectAll node)

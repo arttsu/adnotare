@@ -59,6 +59,6 @@
 (defn goto-prompt-manager [app]
   (let [[active-palette-id _] (annotate/active-palette app)]
     (cond-> app
-        true (assoc ::app/route ::app/prompt-manager)
-        active-palette-id (manage-prompts/select-palette active-palette-id))))
+      true (assoc ::app/route ::app/prompt-manager)
+      active-palette-id (manage-prompts/select-palette active-palette-id))))
 (m/=> goto-prompt-manager [:=> [:cat App] App])

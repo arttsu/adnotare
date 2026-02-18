@@ -23,24 +23,25 @@
     (.create builder)))
 
 (defn pane->area ^CodeArea [^VirtualizedScrollPane pane]
-  (let [user-data (.getUserData pane)]
-    (when (instance? CodeArea user-data)
-      user-data)))
+  (when pane
+    (let [user-data (.getUserData pane)]
+      (when (instance? CodeArea user-data)
+        user-data))))
 
 (defn get-selection [^VirtualizedScrollPane pane]
-  (let [^CodeArea area (pane->area pane)
-        ^IndexRange selection (.getSelection area)
-        start (.getStart selection)
-        end (.getEnd selection)
-        text (.getSelectedText area)]
-    {:start start :end end :text text}))
+  (when-let [^CodeArea area (pane->area pane)]
+    (let [^IndexRange selection (.getSelection area)
+          start (.getStart selection)
+          end (.getEnd selection)
+          text (.getSelectedText area)]
+      {:start start :end end :text text})))
 
 (defn clear-selection! [^VirtualizedScrollPane pane]
-  (let [^CodeArea area (pane->area pane)]
+  (when-let [^CodeArea area (pane->area pane)]
     (.deselect area)))
 
 (defn reveal-range! [^VirtualizedScrollPane pane selection]
-  (let [^CodeArea area (pane->area pane)]
+  (when-let [^CodeArea area (pane->area pane)]
     (doto area
       (.selectRange (:start selection) (:end selection))
       (.requestFollowCaret)

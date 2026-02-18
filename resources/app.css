@@ -1,12 +1,148 @@
+.root {
+    -app-bg: #f3f5f9;
+    -surface: #ffffff;
+    -surface-muted: #f7f9fc;
+    -text: #1a2330;
+    -text-muted: #5d6776;
+    -border-subtle: rgba(12, 20, 34, 0.10);
+    -shadow-color: rgba(16, 24, 40, 0.16);
+
+    -fx-background-color: -app-bg;
+}
+
+.app-root {
+    -fx-background-color: -app-bg;
+}
+
+.label {
+    -fx-text-fill: -text;
+}
+
+.text-field,
+.text-area,
+.combo-box-base {
+    -fx-background-color: -surface;
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.text-area .content {
+    -fx-background-color: -surface;
+    -fx-background-radius: 10;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.section {
+    -fx-background-color: -surface;
+    -fx-background-radius: 16;
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, -shadow-color, 22, 0.16, 0, 6);
+}
+
+.section--primary {
+    -fx-effect: dropshadow(gaussian, rgba(9, 16, 28, 0.21), 28, 0.18, 0, 8);
+}
+
+.side-panel .section {
+    -fx-background-color: -surface-muted;
+}
+
+.section-label {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-muted;
+}
+
+.prompt-manager-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: -text;
+}
+
 .prompt-btn {
-    -fx-background-radius: 8;
-    -fx-padding: 10 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10 13;
     -fx-font-size: 13px;
     -fx-font-weight: 600;
+    -fx-effect: dropshadow(gaussian, rgba(18, 24, 33, 0.14), 8, 0.2, 0, 2);
 }
 
 .prompt-btn:hover {
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(18, 24, 33, 0.20), 11, 0.24, 0, 3);
+    -fx-opacity: 0.97;
+}
+
+.prompt-btn:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(18, 24, 33, 0.10), 5, 0.14, 0, 1);
+}
+
+.btn {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f4f7fb);
+    -fx-background-insets: 0;
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(12, 20, 34, 0.12);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 9 14;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text;
+    -fx-effect: dropshadow(gaussian, rgba(16, 24, 40, 0.10), 10, 0.16, 0, 2);
+}
+
+.btn:hover {
+    -fx-cursor: hand;
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #eef3fa);
+    -fx-effect: dropshadow(gaussian, rgba(16, 24, 40, 0.16), 14, 0.2, 0, 4);
+}
+
+.btn:pressed {
+    -fx-translate-y: 1;
+    -fx-effect: dropshadow(gaussian, rgba(16, 24, 40, 0.08), 6, 0.12, 0, 1);
+}
+
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom, #2f7bf6, #2168de);
+    -fx-border-color: rgba(20, 70, 160, 0.45);
+    -fx-text-fill: white;
+}
+
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, #3b86fb, #2a72ea);
+}
+
+.btn-copy {
+    -fx-background-color: linear-gradient(to bottom, #2f7bf6, #2168de);
+    -fx-border-color: rgba(20, 70, 160, 0.45);
+    -fx-text-fill: white;
+}
+
+.btn-copy:hover {
+    -fx-background-color: linear-gradient(to bottom, #3b86fb, #2a72ea);
+}
+
+.btn-paste {
+    -fx-background-color: linear-gradient(to bottom, #24a889, #1a8a70);
+    -fx-border-color: rgba(16, 108, 86, 0.48);
+    -fx-text-fill: white;
+}
+
+.btn-paste:hover {
+    -fx-background-color: linear-gradient(to bottom, #2ab496, #20967b);
 }
 
 .color-0 { -rtfx-background-color: #FFFF77; -fx-background-color: #FFFF77; -fx-fill: black; }
@@ -22,28 +158,41 @@
 
 .rich-text-span.selected {
     -rtfx-underline: true;
-    -rtfx-underline-color: rgba(0, 0, 0, 0.85);
+    -rtfx-underline-color: rgba(0, 0, 0, 0.80);
     -rtfx-underline-width: 2;
 }
 
+.section--primary .virtualized-scroll-pane,
+.section--primary .code-area {
+    -fx-background-color: #fcfdff;
+    -fx-background-radius: 12;
+    -fx-background-insets: 0;
+}
+
 .ann-list-item {
-    -fx-background-color: -fx-control-inner-background;
-    -fx-background-radius: 10;
-    -fx-border-color: rgba(0,0,0,0.10);
-    -fx-border-radius: 10;
-    -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 10, 0.2, 0, 2);
+    -fx-background-color: -surface;
+    -fx-background-radius: 12;
+    -fx-padding: 10 12;
+    -fx-effect: dropshadow(gaussian, rgba(12, 20, 34, 0.09), 12, 0.17, 0, 3);
 }
 
 .ann-list-item:hover {
-    -fx-border-color: rgba(0,0,0,0.18);
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 12, 0.22, 0, 3)
+    -fx-background-color: #fbfcff;
+    -fx-effect: dropshadow(gaussian, rgba(12, 20, 34, 0.14), 14, 0.2, 0, 4);
 }
 
 .ann-list-item.selected {
-    -fx-border-color: rgba(0, 120, 215, 0.65);
-    -fx-border-width: 2;
-    -fx-background-color: rgba(0, 120, 215, 0.10);
+    -fx-background-color: rgba(0, 120, 215, 0.08);
+    -fx-effect: dropshadow(gaussian, rgba(0, 120, 215, 0.18), 16, 0.2, 0, 4);
+}
+
+.ann-accent {
+    -fx-background-radius: 8;
+    -fx-opacity: 0.62;
+}
+
+.ann-list-item.selected .ann-accent {
+    -fx-opacity: 1;
 }
 
 .ann-list-item .label {
@@ -52,68 +201,83 @@
 
 .ann-list-item-prompt {
     -fx-font-size: 11px;
-    -fx-text-fill: rgba(0,0,0,0.55);
+    -fx-text-fill: -text-muted;
 }
 
 .ann-list-item-delete {
     -fx-background-color: transparent;
-    -fx-background-radius: 8;
-    -fx-padding: 4 8;
-    -fx-font-size: 13px;
-    -fx-text-fill: rgba(0,0,0,0.55);
+    -fx-background-radius: 10;
+    -fx-padding: 5 9;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: rgba(26, 35, 48, 0.52);
     -fx-cursor: hand;
 }
 
 .ann-list-item-delete:hover {
-    -fx-background-color: rgba(0,0,0,0.66);
-    -fx-text-fill: rgba(0,0,0,0.85);
+    -fx-background-color: rgba(26, 35, 48, 0.08);
+    -fx-text-fill: rgba(26, 35, 48, 0.78);
 }
 
 .ann-list-item-delete:pressed {
-    -fx-background-color: rgba(0,0,0,0.10);
+    -fx-background-color: rgba(26, 35, 48, 0.14);
 }
 
-.section {
-    -fx-background-color: rgba(255, 255, 255, 0.88);
-    -fx-border-color: rgba(0, 0, 0, 0.10);
+.list-row {
+    -fx-background-color: transparent;
+    -fx-background-radius: 10;
+}
+
+.list-row:hover {
+    -fx-background-color: rgba(26, 35, 48, 0.06);
+    -fx-cursor: hand;
+}
+
+.empty-state {
+    -fx-alignment: center;
+    -fx-padding: 18;
+    -fx-background-color: rgba(26, 35, 48, 0.03);
     -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-padding: 10;
 }
 
-.section-label {
-    -fx-font-size: 11px;
+.empty-state-title {
+    -fx-font-size: 13px;
     -fx-font-weight: 700;
-    -fx-text-fill: rgba(0, 0, 0, 0.58);
+    -fx-text-fill: -text-muted;
+}
+
+.empty-state-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: rgba(26, 35, 48, 0.62);
 }
 
 .toast {
-    -fx-background-color: rgba(255, 255, 255, 0.96);
-    -fx-border-color: rgba(0, 0, 0, 0.16);
+    -fx-background-color: rgba(255, 255, 255, 0.97);
+    -fx-border-color: rgba(0, 0, 0, 0.10);
     -fx-border-radius: 12;
     -fx-background-radius: 12;
     -fx-padding: 10 14;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.18), 18, 0.22, 0, 4);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.16), 16, 0.2, 0, 3);
 }
 
 .toast.success {
     -fx-background-color: rgba(232, 251, 240, 0.98);
-    -fx-border-color: rgba(25, 140, 77, 0.45);
+    -fx-border-color: rgba(25, 140, 77, 0.33);
 }
 
 .toast.warning {
     -fx-background-color: rgba(255, 247, 224, 0.98);
-    -fx-border-color: rgba(181, 122, 0, 0.45);
+    -fx-border-color: rgba(181, 122, 0, 0.33);
 }
 
 .toast.error {
     -fx-background-color: rgba(255, 236, 236, 0.98);
-    -fx-border-color: rgba(183, 49, 49, 0.48);
+    -fx-border-color: rgba(183, 49, 49, 0.36);
 }
 
 .toast.info {
     -fx-background-color: rgba(234, 245, 255, 0.98);
-    -fx-border-color: rgba(37, 113, 184, 0.50);
+    -fx-border-color: rgba(37, 113, 184, 0.35);
 }
 
 .toast-accent {

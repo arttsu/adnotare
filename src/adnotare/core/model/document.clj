@@ -21,7 +21,7 @@
                 (:by-id annotations))))]])
 
 (def base
-  {::text "Press the \"Paste\" button below to paste in text from the clipboard."
+  {::text ""
    ::annotations
    {:by-id {}}})
 

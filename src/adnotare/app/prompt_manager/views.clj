@@ -1,6 +1,6 @@
 (ns adnotare.app.prompt-manager.views
   (:require
-   [adnotare.app.components :refer [section]]
+   [adnotare.app.components :refer [empty-state section]]
    [adnotare.app.prompt-manager.subs :as subs]
    [adnotare.core.model.app :as app]
    [adnotare.core.model.palette :as palette]
@@ -8,6 +8,7 @@
 
 (defn- palette-list-item [[id {::palette/keys [label]}]]
   {:fx/type :h-box
+   :style-class ["list-row"]
    :alignment :center-left
    :padding 8
    :on-mouse-clicked {:event/type :prompt-manager/select-palette, :id id}
@@ -27,6 +28,7 @@
 
 (defn- prompt-list-item [[id {::prompt/keys [text]}]]
   {:fx/type :h-box
+   :style-class ["list-row"]
    :alignment :center-left
    :padding 8
    :on-mouse-clicked {:event/type :prompt-manager/select-prompt, :id id}
@@ -61,8 +63,9 @@
        [{:fx/type :label
          :text "Prompts"}
         {:fx/type prompt-list}]}]}
-    {:fx/type :label
-     :text "xXx"}))
+    (empty-state
+     "Select a palette"
+     "Choose a palette on the left to edit its prompts.")))
 
 (defn- prompt-editor [{:keys [fx/context]}]
   (if-let [[_id prompt] (subs/selected-prompt context)]
@@ -76,8 +79,9 @@
          :text "Text"}
         {:fx/type :text-field
          :text (::prompt/text prompt)}]}]}
-    {:fx/type :label
-     :text "xXx"}))
+    (empty-state
+     "Select a prompt"
+     "Choose a prompt from the palette to edit its text.")))
 
 (defn root [_]
   {:fx/type :v-box
@@ -88,19 +92,23 @@
      :alignment :center-left
      :spacing 12
      :children
-     [{:fx/type :button
+     [{:fx/type :label
+       :text "Edit Prompt Palettes"
+       :style-class ["prompt-manager-title"]}
+      {:fx/type :region
+       :h-box/hgrow :always}
+      {:fx/type :button
        :text "\u2190 Back"
-       :on-action {:event/type :ui/navigate :route ::app/annotator}}
-      {:fx/type :label
-       :text "Manage prompts"
-       :style-class ["section-label"]}]}
-    {:fx/type :split-pane
+       :style-class ["btn"]
+       :on-action {:event/type :ui/navigate :route ::app/annotator}}]}
+    {:fx/type :h-box
      :v-box/vgrow :always
-     :divider-positions [0.25 0.67]
-     :items
+     :spacing 10
+     :children
      [{:fx/type :v-box
-       :padding 10
-       :min-width 300
+       :min-width 340
+       :pref-width 440
+       :h-box/hgrow :always
        :children
        [(section
          "Palettes"
@@ -109,8 +117,9 @@
          {:max-height Double/MAX_VALUE
           :v-box/vgrow :always})]}
       {:fx/type :v-box
-       :padding 10
-       :min-width 300
+       :min-width 340
+       :pref-width 440
+       :h-box/hgrow :always
        :children
        [(section
          "Palette Editor"
@@ -119,8 +128,9 @@
          {:max-height Double/MAX_VALUE
           :v-box/vgrow :always})]}
       {:fx/type :v-box
-       :padding 10
-       :min-width 300
+       :min-width 340
+       :pref-width 440
+       :h-box/hgrow :always
        :children
        [(section
          "Prompt Editor"
