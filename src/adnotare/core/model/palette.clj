@@ -17,11 +17,11 @@
   {::label "Default"
    ::prompts
    {:by-id
-    {(uuid/named "default-prompt-1") {::prompt/text "Comment" ::prompt/color 0}
-     (uuid/named "default-prompt-2") {::prompt/text "User answer" ::prompt/color 1}
-     (uuid/named "default-prompt-3") {::prompt/text "Explain" ::prompt/color 3}
-     (uuid/named "default-prompt-4") {::prompt/text "Give example" ::prompt/color 4}
-     (uuid/named "default-prompt-5") {::prompt/text "Provide evidence" ::prompt/color 7}}
+    {(uuid/named "default-prompt-1") {::prompt/label "Comment" ::prompt/instructions "" ::prompt/color 0}
+     (uuid/named "default-prompt-2") {::prompt/label "User answer" ::prompt/instructions "" ::prompt/color 1}
+     (uuid/named "default-prompt-3") {::prompt/label "Explain" ::prompt/instructions "" ::prompt/color 3}
+     (uuid/named "default-prompt-4") {::prompt/label "Give example" ::prompt/instructions "" ::prompt/color 4}
+     (uuid/named "default-prompt-5") {::prompt/label "Provide evidence" ::prompt/instructions "" ::prompt/color 7}}
     :order
     [(uuid/named "default-prompt-1")
      (uuid/named "default-prompt-2")

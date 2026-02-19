@@ -15,6 +15,9 @@
 (defn route [context]
   (fx/sub-val context ::app/route))
 
+(defn app-state [context]
+  (fx/sub-val context (fn [app] app)))
+
 (defn toasts [context]
   (fx/sub-val context ui/toasts))
 (m/=> toasts [:=> [:cat Context] (IDSeq Toast)])

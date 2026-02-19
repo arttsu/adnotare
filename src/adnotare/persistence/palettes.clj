@@ -14,6 +14,6 @@
 (m/=> read-persisted [:=> [:cat] ReadEDNFileResult])
 
 (defn write-palettes! [palettes]
-  (let [content {:version 1, :data palettes}]
+  (let [content {:version 2, :data palettes}]
     (write-edn-file! (path) content)))
 (m/=> write-palettes! [:=> [:cat Palettes] :nil])

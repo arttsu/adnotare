@@ -12,6 +12,7 @@
    [adnotare.core.util.uuid :as uuid]
    [adnotare.test.core.constants :as C]
    [adnotare.test.core.factory :as factory]
+   [clojure.string :as string]
    [clojure.test :refer [are deftest is testing]]))
 
 (deftest active-palette-test
@@ -31,7 +32,7 @@
     (is (= [[(uuid/named "annotation-1") "Provide evidence" "This is a test" "" false]
             [(uuid/named "annotation-2") "Explain" "Adnotare" "Etymology" true]]
            (map (fn [[id {::annotation/keys [note selected?]
-                          {prompt-text ::prompt/text} ::annotation/prompt
+                          {prompt-text ::prompt/label} ::annotation/prompt
                           {::selection/keys [quote]} ::annotation/selection}]]
                   [id prompt-text quote note selected?])
                 annotations)))))
@@ -117,6 +118,14 @@ Etymology
 </annotation>
 "
          (subject/annotations-as-llm-prompt C/default-app))))
+
+(deftest annotations-as-llm-prompt-prefers-instructions-test
+  (let [app (assoc-in C/default-app
+                      [::app/palettes :by-id (uuid/named "palette-1") ::palette/prompts :by-id (uuid/named "prompt-12") ::prompt/instructions]
+                      "Detailed explanation instruction")
+        output (subject/annotations-as-llm-prompt app)]
+    (is (string/includes? output "Detailed explanation instruction"))
+    (is (not (string/includes? output "<prompt>\nExplain\n</prompt>")))))
 
 (deftest annotations-and-text-as-llm-prompt-test
   (is (= "<document>

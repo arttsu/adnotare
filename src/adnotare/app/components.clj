@@ -36,17 +36,17 @@
                          {:fx/type :label
                           :text label
                           :style-class ["section-label"]}))]
-  (merge
-   {:fx/type :v-box
-    :style-class (into ["section"] style-classes)
-    :spacing 10
-    :children [{:fx/type :h-box
-                :alignment :center-left
-                :children
-                (cond-> []
-                  header-label (conj header-label)
-                  true (conj {:fx/type :region
-                              :h-box/hgrow :always})
-                  header-right (conj header-right))}
-               content]}
-   section-props)))
+    (merge
+     {:fx/type :v-box
+      :style-class (into ["section"] style-classes)
+      :spacing 10
+      :children [{:fx/type :h-box
+                  :alignment :center-left
+                  :children
+                  (cond-> []
+                    header-label (conj header-label)
+                    true (conj {:fx/type :region
+                                :h-box/hgrow :always})
+                    header-right (conj header-right))}
+                 content]}
+     section-props)))

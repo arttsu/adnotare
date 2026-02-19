@@ -7,7 +7,7 @@
    [adnotare.core.model.palettes :refer [Palettes]]
    [adnotare.core.model.toast :as toast :refer [Toast]]
    [adnotare.core.util.result :refer [if-ok ReadEDNFileResult]]
-   [adnotare.core.util.schema :as schema :refer [IDSeq]]
+   [adnotare.core.util.schema :refer [IDSeq]]
    [adnotare.core.util.uuid :as uuid]
    [malli.core :as m]))
 
@@ -29,14 +29,13 @@
   (let [default-palettes {:by-id {(uuid/named "default-palette") palette/default} :last-used-ms {}}
         [palettes init-errors]
         (if-ok [persisted-palettes persisted-palettes-result]
-               (if (= 1 (:version persisted-palettes))
+               (if (= 2 (:version persisted-palettes))
                  (if (m/validate Palettes (:data persisted-palettes))
                    [(:data persisted-palettes) {}]
                    [default-palettes {::app/read-palettes :invalid-schema}])
                  [default-palettes {::app/read-palettes :unsupported-version}])
                [reason]
                [default-palettes {::app/read-palettes reason}])]
-    (prn :init-errors init-errors)
     (-> app
         (assoc ::app/palettes palettes)
         (assoc ::app/init-errors init-errors)

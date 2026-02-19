@@ -23,14 +23,14 @@
 (deftest initialize-test
   (doseq [[scenario persisted-palettes expected-active-palette expected-init-errors]
           [["ok persisted palettes, activates last used"
-            (result/ok (factory/->persisted-palettes 1 [[(uuid/named "palette-1") C/palette-1 1000] [(uuid/named "palette-2") C/palette-2 2000]]))
+            (result/ok (factory/->persisted-palettes 2 [[(uuid/named "palette-1") C/palette-1 1000] [(uuid/named "palette-2") C/palette-2 2000]]))
             "Palette Two"
             {}]
            ["ok persisted palettes, no last used, activates the first one alphabetically"
-            (result/ok (factory/->persisted-palettes 1 [[(uuid/named "palette-1") C/palette-1 nil] [(uuid/named "palette-2") C/palette-2 nil]]))
+            (result/ok (factory/->persisted-palettes 2 [[(uuid/named "palette-1") C/palette-1 nil] [(uuid/named "palette-2") C/palette-2 nil]]))
             "Palette One"
             {}]
-           ["empty persisted palettes" (result/ok (factory/->persisted-palettes 1 [])) nil {}]
+           ["empty persisted palettes" (result/ok (factory/->persisted-palettes 2 [])) nil {}]
            ["not found persisted palettes" (result/error :not-found) "Default" {::app/read-palettes :not-found}]
            ["corrupted persisted palettes" (result/error :eof) "Default" {::app/read-palettes :eof}]
            ["unsupported persisted palettes version"
@@ -38,7 +38,7 @@
             "Default"
             {::app/read-palettes :unsupported-version}]
            ["invalid persisted palettes schema"
-            (result/ok {:version 1 :data "bad"})
+            (result/ok {:version 2 :data "bad"})
             "Default"
             {::app/read-palettes :invalid-schema}]]]
     (testing scenario

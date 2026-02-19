@@ -15,11 +15,11 @@
   {::palette/label "Palette One"
    ::palette/prompts
    {:by-id
-    {(uuid/named "prompt-11") {::prompt/text "Comment" ::prompt/color 0}
-     (uuid/named "prompt-12") {::prompt/text "Explain" ::prompt/color 3}
-     (uuid/named "prompt-13") {::prompt/text "Provide evidence" ::prompt/color 7}
-     (uuid/named "prompt-14") {::prompt/text "Give example" ::prompt/color 4}
-     (uuid/named "prompt-15") {::prompt/text "User answer" ::prompt/color 1}}
+    {(uuid/named "prompt-11") {::prompt/label "Comment" ::prompt/instructions "" ::prompt/color 0}
+     (uuid/named "prompt-12") {::prompt/label "Explain" ::prompt/instructions "" ::prompt/color 3}
+     (uuid/named "prompt-13") {::prompt/label "Provide evidence" ::prompt/instructions "" ::prompt/color 7}
+     (uuid/named "prompt-14") {::prompt/label "Give example" ::prompt/instructions "" ::prompt/color 4}
+     (uuid/named "prompt-15") {::prompt/label "User answer" ::prompt/instructions "" ::prompt/color 1}}
     :order
     [(uuid/named "prompt-11")
      (uuid/named "prompt-15")
@@ -31,9 +31,9 @@
   {::palette/label "Palette Two"
    ::palette/prompts
    {:by-id
-    {(uuid/named "prompt-21") {::prompt/text "Prompt One" ::prompt/color 0}
-     (uuid/named "prompt-22") {::prompt/text "Prompt Two" ::prompt/color 1}
-     (uuid/named "prompt-23") {::prompt/text "Prompt Three" ::prompt/color 2}}
+    {(uuid/named "prompt-21") {::prompt/label "Prompt One" ::prompt/instructions "" ::prompt/color 0}
+     (uuid/named "prompt-22") {::prompt/label "Prompt Two" ::prompt/instructions "" ::prompt/color 1}
+     (uuid/named "prompt-23") {::prompt/label "Prompt Three" ::prompt/instructions "" ::prompt/color 2}}
     :order
     [(uuid/named "prompt-21")
      (uuid/named "prompt-22")
@@ -43,7 +43,7 @@
   {::palette/label "Palette Three"
    ::palette/prompts
    {:by-id
-    {(uuid/named "prompt-31") {::prompt/text "Comment" ::prompt/color 0}}
+    {(uuid/named "prompt-31") {::prompt/label "Comment" ::prompt/instructions "" ::prompt/color 0}}
     :order
     [(uuid/named "prompt-31")]}})
 
@@ -59,6 +59,7 @@
   {::app/initialized? true
    ::app/init-errors {}
    ::app/route ::app/annotator
+   ::app/persist-token 0
    ::app/toasts {:by-id {}}
    ::app/palettes default-palettes
    ::app/document
@@ -78,4 +79,5 @@
     ::annotator/selected-annotation-id (uuid/named "annotation-2")}
    ::app/prompt-manager
    {::prompt-manager/selected-palette-id nil
-    ::prompt-manager/selected-prompt-id nil}})
+    ::prompt-manager/selected-prompt-id nil
+    ::prompt-manager/draft {::prompt-manager/errors {}}}})

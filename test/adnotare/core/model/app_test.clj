@@ -9,4 +9,4 @@
 
 (deftest prompt-by-ref-test
   (let [prompt (subject/prompt-by-ref C/default-app (factory/->prompt-ref (uuid/named "palette-1") (uuid/named "prompt-12")))]
-    (is (= "Explain" (::prompt/text prompt)))))
+    (is (= "Explain" (::prompt/label prompt)))))

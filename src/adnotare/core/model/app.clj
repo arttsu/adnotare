@@ -22,6 +22,7 @@
    [::initialized? :boolean]
    [::init-errors InitErrors]
    [::route Route]
+   [::persist-token :int]
    [::toasts
     [:map
      [:by-id [:map-of :uuid Toast]]]]
@@ -34,6 +35,7 @@
   {::initialized? false
    ::init-errors {}
    ::route ::annotator
+   ::persist-token 0
    ::toasts {:by-id {}}
    ::palettes palettes/base
    ::document document/base

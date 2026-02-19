@@ -77,18 +77,19 @@
        (map (fn [[_id
                   {::annotation/keys [note]
                    {::selection/keys [quote]} ::annotation/selection
-                   {prompt-text ::prompt/text} ::annotation/prompt}]]
-              (cond-> (str "<annotation>\n"
-                           "<quote>\n"
-                           quote "\n"
-                           "</quote>\n"
-                           "<prompt>\n"
-                           prompt-text "\n"
-                           "</prompt>\n")
-                (not (string/blank? note)) (str "<note>\n"
-                                                note "\n"
-                                                "</note>\n")
-                true (str "</annotation>\n"))))
+                   prompt ::annotation/prompt}]]
+              (let [prompt-text (prompt/effective-text prompt)]
+                (cond-> (str "<annotation>\n"
+                             "<quote>\n"
+                             quote "\n"
+                             "</quote>\n"
+                             "<prompt>\n"
+                             prompt-text "\n"
+                             "</prompt>\n")
+                  (not (string/blank? note)) (str "<note>\n"
+                                                  note "\n"
+                                                  "</note>\n")
+                  true (str "</annotation>\n")))))
        (string/join "\n")))
 (m/=> annotations-as-llm-prompt [:=> [:cat App] :string])
 

@@ -15,6 +15,7 @@
    (javafx.application Platform)
    (javafx.event EventHandler)
    (javafx.scene.control Alert Alert$AlertType ButtonType)
+   (javafx.scene.control TextInputControl)
    (javafx.scene.input Clipboard ClipboardContent)
    (javafx.util Duration)))
 
@@ -28,6 +29,7 @@
     (case operation
       :focus (.requestFocus node)
       :text-area/select-content (.selectAll node)
+      :text-input/select-content (.selectAll ^TextInputControl node)
       :code-area/clear-selection (code-area/clear-selection! node)
       :code-area/reveal-range (code-area/reveal-range! node (:range update)))))
 
@@ -36,12 +38,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
 
-(defn- dispatch-later [{:keys [delay-ms event]} dispatch]
-  (doto (PauseTransition. (Duration/millis delay-ms))
-    (.setOnFinished (reify EventHandler
-                      (handle [_ _]
-                        (dispatch event))))
-    (.play)))
+(defn- dispatch-later [payload dispatch]
+  (let [schedules (cond
+                    (nil? payload) []
+                    (sequential? payload) payload
+                    :else [payload])]
+    (doseq [{:keys [delay-ms event]} schedules]
+      (doto (PauseTransition. (Duration/millis delay-ms))
+        (.setOnFinished (reify EventHandler
+                          (handle [_ _]
+                            (dispatch event))))
+        (.play)))))
 
 (defn- confirm [{:keys [title header content on-yes]} dispatch]
   (let [alert (doto (Alert. Alert$AlertType/CONFIRMATION)

@@ -43,10 +43,10 @@
         :describe #(select-keys % [:text])}
        :on-action {:event/type :annotator/switch-palette}}]}))
 
-(defn- prompt-button [[id {::prompt/keys [text color]}]]
+(defn- prompt-button [[id {::prompt/keys [label color]}]]
   {:fx/type :button
-   :text text
-   :tooltip {:fx/type :tooltip :text text}
+   :text label
+   :tooltip {:fx/type :tooltip :text label}
    :wrap-text false
    :text-overrun OverrunStyle/ELLIPSIS
    :style-class ["prompt-btn" (str "color-" color)]
@@ -91,7 +91,7 @@
         {:fx/type prompt-pane}]})))
 
 (defn- annotation-list-item [[id
-                              {{::prompt/keys [color] prompt-text ::prompt/text} ::annotation/prompt
+                              {{::prompt/keys [color] prompt-label ::prompt/label} ::annotation/prompt
                                {::selection/keys [quote]} ::annotation/selection
                                ::annotation/keys [selected?]}]]
   {:fx/type :h-box
@@ -112,7 +112,7 @@
      :h-box/hgrow :always
      :children
      [{:fx/type :label
-       :text prompt-text
+       :text prompt-label
        :style-class ["ann-list-item-prompt"]
        :wrap-text false
        :text-overrun OverrunStyle/ELLIPSIS}

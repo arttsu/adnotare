@@ -13,7 +13,7 @@
             [(uuid/named "prompt-14") "Give example"]
             [(uuid/named "prompt-12") "Explain"]
             [(uuid/named "prompt-13") "Provide evidence"]]
-           (map (fn [[id prompt]] [id (::prompt/text prompt)]) prompts))))
+           (map (fn [[id prompt]] [id (::prompt/label prompt)]) prompts))))
   (testing "empty palette"
     (is (= [] (subject/ordered-prompts {::subject/label "Empty"
                                         ::subject/prompts {:by-id {} :order []}})))))
