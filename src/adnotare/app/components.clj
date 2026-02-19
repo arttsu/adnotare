@@ -50,3 +50,18 @@
                     header-right (conj header-right))}
                  content]}
      section-props)))
+
+(defn hotkey-chip [text]
+  {:fx/type :label
+   :text text
+   :style-class ["hotkey-hint"]})
+
+(defn label-with-hotkey [label hotkey]
+  {:fx/type :h-box
+   :spacing 10
+   :alignment :center-left
+   :children
+   [{:fx/type :label
+     :text label
+     :style-class ["hotkey-main-label"]}
+    (hotkey-chip hotkey)]})

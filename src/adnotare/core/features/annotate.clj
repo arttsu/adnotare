@@ -173,3 +173,28 @@
 (m/=> switch-palette [:function
                       [:=> [:cat App :uuid] App]
                       [:=> [:cat App :uuid [:=> [:cat] Millis]] App]])
+
+(defn- ordered-palette-ids [app]
+  (->> (get-in app [::app/palettes :by-id])
+       (sort-by (comp ::palette/label val))
+       (mapv key)))
+
+(defn- switch-palette-relative [app delta]
+  (let [palette-ids (ordered-palette-ids app)
+        palette-count (count palette-ids)]
+    (if (zero? palette-count)
+      app
+      (let [current-id (active-palette-id app)
+            current-idx (.indexOf palette-ids current-id)
+            base-idx (if (neg? current-idx) 0 current-idx)
+            target-idx (mod (+ base-idx delta) palette-count)
+            target-id (nth palette-ids target-idx)]
+        (switch-palette app target-id)))))
+
+(defn switch-palette-next [app]
+  (switch-palette-relative app 1))
+(m/=> switch-palette-next [:=> [:cat App] App])
+
+(defn switch-palette-prev [app]
+  (switch-palette-relative app -1))
+(m/=> switch-palette-prev [:=> [:cat App] App])

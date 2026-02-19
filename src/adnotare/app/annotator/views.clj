@@ -1,7 +1,8 @@
 (ns adnotare.app.annotator.views
   (:require
    [adnotare.app.annotator.subs :as subs]
-   [adnotare.app.components :refer [empty-state section]]
+   [adnotare.app.components :refer [empty-state hotkey-chip label-with-hotkey section]]
+   [adnotare.app.hotkeys :as hotkeys]
    [adnotare.app.node-registry :as node-registry]
    [adnotare.core.model.annotation :as annotation]
    [adnotare.core.model.app :as app]
@@ -33,24 +34,37 @@
      :children
      [{:fx/type :label
        :text "Palette"}
-      {:fx/type :combo-box
-       :items options
-       :value selected
-       :max-width Double/MAX_VALUE
-       :button-cell #(select-keys % [:text])
-       :cell-factory
-       {:fx/cell-type :list-cell
-        :describe #(select-keys % [:text])}
-       :on-action {:event/type :annotator/switch-palette}}]}))
+      {:fx/type :h-box
+       :alignment :center-left
+       :spacing 8
+       :children
+       [{:fx/type :combo-box
+         :items options
+         :value selected
+         :max-width Double/MAX_VALUE
+         :h-box/hgrow :always
+         :button-cell #(select-keys % [:text])
+         :cell-factory
+         {:fx/cell-type :list-cell
+          :describe #(select-keys % [:text])}
+         :on-action {:event/type :annotator/switch-palette}}
+        (hotkey-chip (str "Prev " (hotkeys/hotkey-label ::hotkeys/palette-prev)))
+        (hotkey-chip (str "Next " (hotkeys/hotkey-label ::hotkeys/palette-next)))]}]}))
 
-(defn- prompt-button [[id {::prompt/keys [label color]}]]
-  {:fx/type :button
-   :text label
-   :tooltip {:fx/type :tooltip :text label}
-   :wrap-text false
-   :text-overrun OverrunStyle/ELLIPSIS
-   :style-class ["prompt-btn" (str "color-" color)]
-   :on-action {:event/type :annotator/add-annotation-from-selection :prompt-id id}})
+(defn- prompt-button [idx [id {::prompt/keys [label color]}]]
+  (let [hotkey (hotkeys/prompt-hotkey-label idx)
+        tooltip-text (if hotkey
+                       (str label " (" hotkey ")")
+                       label)]
+    {:fx/type :button
+     :graphic (if hotkey
+                (label-with-hotkey label hotkey)
+                {:fx/type :label :text label})
+     :tooltip {:fx/type :tooltip :text tooltip-text}
+     :wrap-text false
+     :text-overrun OverrunStyle/ELLIPSIS
+     :style-class ["prompt-btn" (str "color-" color)]
+     :on-action {:event/type :annotator/add-annotation-from-selection :prompt-id id}}))
 
 (defn- prompt-pane [{:keys [fx/context]}]
   (let [prompts (subs/active-prompts context)]
@@ -62,7 +76,13 @@
       :hgap 10
       :vgap 10
       :padding 10
-      :children (map prompt-button prompts)}}))
+      :children (map-indexed prompt-button prompts)}}))
+
+(defn- hotkey-action-button [label hotkey style-class event-type]
+  {:fx/type :button
+   :style-class style-class
+   :graphic (label-with-hotkey label hotkey)
+   :on-action {:event/type event-type}})
 
 (defn- prompt-section [{:keys [fx/context]}]
   (let [{:keys [options]} (subs/palette-selector-options context)]
@@ -196,22 +216,26 @@
        :section-props {:v-box/vgrow :always})
       (section
        nil
-       {:fx/type :h-box
+       {:fx/type :flow-pane
         :padding 12
-        :spacing 10
+        :hgap 10
+        :vgap 10
         :children
-        [{:fx/type :button
-          :text "📥 Paste from clipboard"
-          :style-class ["btn" "btn-primary" "btn-paste"]
-          :on-action {:event/type :annotator/paste-document-from-clipboard}}
-         {:fx/type :button
-          :text "📋 Copy annotations"
-          :style-class ["btn" "btn-primary" "btn-copy"]
-          :on-action {:event/type :annotator/copy-annotations-as-llm-prompt}}
-         {:fx/type :button
-          :text "📋 Copy annotations with document"
-          :style-class ["btn" "btn-primary" "btn-copy"]
-          :on-action {:event/type :annotator/copy-annotations-and-document-as-llm-prompt}}]})]}
+        [(hotkey-action-button
+          "📥 Paste from clipboard"
+          (hotkeys/hotkey-label ::hotkeys/paste)
+          ["btn" "btn-primary" "btn-paste"]
+          :annotator/paste-document-from-clipboard)
+         (hotkey-action-button
+          "📋 Copy annotations"
+          (hotkeys/hotkey-label ::hotkeys/copy-annotations)
+          ["btn" "btn-primary" "btn-copy"]
+          :annotator/copy-annotations-as-llm-prompt)
+         (hotkey-action-button
+          "📋 Copy annotations with document"
+          (hotkeys/hotkey-label ::hotkeys/copy-annotations+document)
+          ["btn" "btn-primary" "btn-copy"]
+          :annotator/copy-annotations-and-document-as-llm-prompt)]})]}
     {:fx/type :v-box
      :style-class ["side-panel"]
      :min-width 420

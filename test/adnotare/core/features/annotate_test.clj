@@ -169,3 +169,37 @@ Etymology
         [_id active-palette] (subject/active-palette app-after)]
     (is (= "Palette Two" (::palette/label active-palette)))
     (is (= 100500 (get-in app-after [::app/palettes :last-used-ms (uuid/named "palette-2")])))))
+
+(deftest switch-palette-next-test
+  (testing "moves to next palette alphabetically"
+    (let [app-after (subject/switch-palette-next C/default-app)
+          [active-id active-palette] (subject/active-palette app-after)]
+      (is (= (uuid/named "palette-3") active-id))
+      (is (= "Palette Three" (::palette/label active-palette)))
+      (is (integer? (get-in app-after [::app/palettes :last-used-ms (uuid/named "palette-3")])))))
+  (testing "wraps from the last palette to the first"
+    (let [app (assoc-in C/default-app [::app/annotator ::annotator/active-palette-id] (uuid/named "palette-2"))
+          app-after (subject/switch-palette-next app)
+          [active-id active-palette] (subject/active-palette app-after)]
+      (is (= (uuid/named "palette-1") active-id))
+      (is (= "Palette One" (::palette/label active-palette))))))
+
+(deftest switch-palette-prev-test
+  (testing "moves to previous palette alphabetically"
+    (let [app-after (subject/switch-palette-prev C/default-app)
+          [active-id active-palette] (subject/active-palette app-after)]
+      (is (= (uuid/named "palette-2") active-id))
+      (is (= "Palette Two" (::palette/label active-palette)))
+      (is (integer? (get-in app-after [::app/palettes :last-used-ms (uuid/named "palette-2")])))))
+  (testing "wraps from the first palette to the last"
+    (let [app-after (subject/switch-palette-prev C/default-app)
+          app-after' (subject/switch-palette-prev app-after)
+          [active-id active-palette] (subject/active-palette app-after')]
+      (is (= (uuid/named "palette-3") active-id))
+      (is (= "Palette Three" (::palette/label active-palette)))))
+  (testing "no palettes leaves app unchanged"
+    (let [app (assoc C/default-app
+                     ::app/palettes (assoc palettes/base :last-used-ms {})
+                     ::app/annotator (assoc (::app/annotator C/default-app) ::annotator/active-palette-id nil))]
+      (is (= app (subject/switch-palette-prev app)))
+      (is (= app (subject/switch-palette-next app))))))

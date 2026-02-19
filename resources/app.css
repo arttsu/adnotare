@@ -122,6 +122,34 @@
     -fx-translate-y: 1;
 }
 
+.theme-zine .hotkey-hint {
+    -fx-font-size: 11px;
+    -fx-font-weight: 800;
+    -fx-text-fill: rgba(0, 0, 0, 0.72);
+    -fx-padding: 2 6;
+    -fx-alignment: center;
+    -fx-min-width: 78;
+    -fx-background-color: rgba(255, 255, 255, 0.55);
+    -fx-border-color: rgba(0, 0, 0, 0.30);
+    -fx-border-width: 1;
+    -fx-border-radius: 2;
+    -fx-background-radius: 2;
+}
+
+.theme-zine .hotkey-main-label {
+    -fx-text-fill: -ink;
+}
+
+.theme-zine .btn .hotkey-main-label {
+    -fx-text-fill: -paper;
+}
+
+.theme-zine .btn .hotkey-hint {
+    -fx-text-fill: rgba(251, 246, 234, 0.95);
+    -fx-background-color: rgba(255, 255, 255, 0.10);
+    -fx-border-color: rgba(251, 246, 234, 0.55);
+}
+
 .theme-zine .btn-primary,
 .theme-zine .btn-copy,
 .theme-zine .btn-paste {

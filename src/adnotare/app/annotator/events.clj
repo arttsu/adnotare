@@ -79,3 +79,11 @@
   (let [id (-> event .getSource .getValue :id)]
     {:context (fx/swap-context context annotate/switch-palette id)
      :dispatch-later {:delay-ms 10, :event {:event/type :ui/persist-palettes}}}))
+
+(defmethod handle-event :annotator/switch-palette-next [{:keys [fx/context]}]
+  {:context (fx/swap-context context annotate/switch-palette-next)
+   :dispatch-later {:delay-ms 10, :event {:event/type :ui/persist-palettes}}})
+
+(defmethod handle-event :annotator/switch-palette-prev [{:keys [fx/context]}]
+  {:context (fx/swap-context context annotate/switch-palette-prev)
+   :dispatch-later {:delay-ms 10, :event {:event/type :ui/persist-palettes}}})

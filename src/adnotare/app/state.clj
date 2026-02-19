@@ -2,6 +2,7 @@
   (:require
    [adnotare.app.annotator.events]
    [adnotare.app.events]
+   [adnotare.app.hotkeys.events]
    [adnotare.app.interface :refer [handle-event]]
    [adnotare.app.node-registry :as node-registry]
    [adnotare.app.prompt-manager.events]

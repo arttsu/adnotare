@@ -78,6 +78,7 @@
       :root
       {:fx/type :stack-pane
        :style-class ["app-root" "theme-zine"]
+       :on-key-pressed {:event/type :hotkeys/key-pressed}
        :children
        [(if loaded?
           {:fx/type app}
