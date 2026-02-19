@@ -25,6 +25,18 @@ test *args:
 test-cov:
     bin/kaocha --plugin cloverage
 
+# Build macOS uberjar with mac JavaFX deps
+uber-mac:
+    clj -T:build uber
+
+# Build local unsigned macOS .app bundle (and zip)
+package-mac:
+    clj -T:build package-mac
+
+# Zip existing app bundle for distribution
+zip-mac:
+    clj -T:build zip-mac
+
 # Lint, format, and test
 pre-pr:
     @just lint
