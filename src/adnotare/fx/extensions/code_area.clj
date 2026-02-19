@@ -5,6 +5,7 @@
             [cljfx.mutator :as mutator]
             [cljfx.prop :as prop])
   (:import (java.util ArrayList Collection Collections)
+           (javafx.geometry Insets)
            (javafx.scene.control IndexRange)
            (org.fxmisc.flowless VirtualizedScrollPane)
            (org.fxmisc.richtext CodeArea)
@@ -72,7 +73,8 @@
 
 (defn- ->code-area []
   (let [area (doto (CodeArea.)
-               (.setWrapText true))
+               (.setWrapText true)
+               (.setPadding (Insets. 10)))
         pane (VirtualizedScrollPane. area)]
     (.setUserData pane area)
     pane))

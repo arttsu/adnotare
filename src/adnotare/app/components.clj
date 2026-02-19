@@ -15,9 +15,27 @@
      :wrap-text true}]})
 
 (defn section
-  [label content & {:keys [section-props header-right style-classes]
+  [label content & {:keys [section-props header-right style-classes tape?]
                     :or {section-props {}
-                         style-classes []}}]
+                         style-classes []
+                         tape? false}}]
+  (let [header-label (when label
+                       (if tape?
+                         {:fx/type :stack-pane
+                          :alignment :center-left
+                          :h-box/margin {:right 8}
+                          :children
+                          [{:fx/type :region
+                            :style-class ["tape"]
+                            :min-height 18
+                            :pref-height 18
+                            :max-height 18}
+                           {:fx/type :label
+                            :text label
+                            :style-class ["section-label" "section-label--taped"]}]}
+                         {:fx/type :label
+                          :text label
+                          :style-class ["section-label"]}))]
   (merge
    {:fx/type :v-box
     :style-class (into ["section"] style-classes)
@@ -26,11 +44,9 @@
                 :alignment :center-left
                 :children
                 (cond-> []
-                  label (conj {:fx/type :label
-                               :text label
-                               :style-class ["section-label"]})
+                  header-label (conj header-label)
                   true (conj {:fx/type :region
                               :h-box/hgrow :always})
                   header-right (conj header-right))}
                content]}
-   section-props))
+   section-props)))

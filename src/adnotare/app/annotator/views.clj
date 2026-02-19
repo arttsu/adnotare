@@ -49,8 +49,6 @@
    :tooltip {:fx/type :tooltip :text text}
    :wrap-text false
    :text-overrun OverrunStyle/ELLIPSIS
-   :pref-width 220
-   :max-width 220
    :style-class ["prompt-btn" (str "color-" color)]
    :on-action {:event/type :annotator/add-annotation-from-selection :prompt-id id}})
 
@@ -60,9 +58,7 @@
      :fit-to-width true
      :hbar-policy :never
      :content
-     {:fx/type :tile-pane
-      :pref-columns 2
-      :pref-tile-width 220
+     {:fx/type :flow-pane
       :hgap 10
       :vgap 10
       :padding 10
@@ -195,6 +191,7 @@
        "Document"
        {:fx/type document
         :v-box/vgrow :always}
+       :tape? true
        :style-classes ["section--primary"]
        :section-props {:v-box/vgrow :always})
       (section
@@ -226,6 +223,7 @@
      [(section
        "Prompts"
        {:fx/type prompt-section}
+       :tape? true
        :section-props {:min-height 360
                        :pref-height 360
                        :max-height 360}
@@ -245,6 +243,7 @@
           :v-box/vgrow :always
           :min-height 0}
          {:fx/type selected-annotation-note-text-area}]}
+       :tape? true
        :section-props {:v-box/vgrow :always
                        :min-height 0
                        :max-height Double/MAX_VALUE})]}]})

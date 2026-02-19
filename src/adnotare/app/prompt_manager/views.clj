@@ -113,6 +113,7 @@
        [(section
          "Palettes"
          {:fx/type palette-list}
+         :tape? true
          :section-props
          {:max-height Double/MAX_VALUE
           :v-box/vgrow :always})]}

@@ -77,7 +77,7 @@
       :stylesheets [(resources/url "app.css")]
       :root
       {:fx/type :stack-pane
-       :style-class ["app-root"]
+       :style-class ["app-root" "theme-zine"]
        :children
        [(if loaded?
           {:fx/type app}
