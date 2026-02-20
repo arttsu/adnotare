@@ -37,6 +37,10 @@ package-mac:
 zip-mac:
     clj -T:build zip-mac
 
+# Cross-platform dist archive builder
+dist os version arch="":
+    clj -T:build dist :os '"{{os}}"' :version '"{{version}}"' :arch '"{{arch}}"'
+
 # Lint, format, and test
 pre-pr:
     @just lint

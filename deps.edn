@@ -15,6 +15,14 @@
                          org.openjfx/javafx-graphics$mac {:mvn/version "21.0.6"}
                          org.openjfx/javafx-controls$mac {:mvn/version "21.0.6"}
                          org.openjfx/javafx-fxml$mac {:mvn/version "21.0.6"}}}
+  :jfx-win {:extra-deps {org.openjfx/javafx-base$win {:mvn/version "21.0.6"}
+                         org.openjfx/javafx-graphics$win {:mvn/version "21.0.6"}
+                         org.openjfx/javafx-controls$win {:mvn/version "21.0.6"}
+                         org.openjfx/javafx-fxml$win {:mvn/version "21.0.6"}}}
+  :jfx-linux {:extra-deps {org.openjfx/javafx-base$linux {:mvn/version "21.0.6"}
+                           org.openjfx/javafx-graphics$linux {:mvn/version "21.0.6"}
+                           org.openjfx/javafx-controls$linux {:mvn/version "21.0.6"}
+                           org.openjfx/javafx-fxml$linux {:mvn/version "21.0.6"}}}
   :test {:extra-deps {lambdaisland/kaocha {:mvn/version "1.91.1392"}
                       lambdaisland/kaocha-cloverage {:mvn/version "1.1.89"}}
          :main-opts ["-m" "kaocha.runner"]}}}
