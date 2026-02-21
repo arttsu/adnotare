@@ -1,5 +1,7 @@
 # Adnotare
 
+<video src="https://github.com/user-attachments/assets/c5d4e83e-631c-4eef-a45f-702f99bee27e"></video>
+
 Adnotare is a desktop tool for improving collaboration with LLMs.
 
 Paste an LLM response (or any text), highlight specific passages,

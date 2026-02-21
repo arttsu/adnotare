@@ -70,7 +70,7 @@
      :showing true
      :title "Adnotare"
      :width 1600
-     :height 1200
+     :height 900
      :on-close-request {:event/type :app/quit}
      :scene
      {:fx/type :scene
