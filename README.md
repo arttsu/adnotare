@@ -99,3 +99,7 @@ git push origin v0.1.0
 4. Download artifacts from the generated GitHub Release page.
 
 For a step-by-step operational checklist, see `RELEASING.md`.
+
+## License
+
+MIT
